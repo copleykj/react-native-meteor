@@ -1,6 +1,5 @@
 import Tracker from 'trackr';
 import EJSON from 'ejson';
-import _ from 'underscore';
 
 import Data from './Data';
 import Random from '../lib/Random';
@@ -170,7 +169,7 @@ function wrapTransform(transform) {
     return transform;
 
   var wrapped = function (doc) {
-    if (!_.has(doc, '_id')) {
+    if (doc._id) {
       // XXX do we ever have a transform on the oplog's collection? because that
       // collection has no _id.
       throw new Error("can only transform documents with _id");
@@ -186,7 +185,7 @@ function wrapTransform(transform) {
       throw new Error("transform must return object");
     }
 
-    if (_.has(transformed, '_id')) {
+    if (transformed._id)) {
       if (!EJSON.equals(transformed._id, id)) {
         throw new Error("transformed document can't have different _id");
       }
