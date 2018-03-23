@@ -117,7 +117,7 @@ export class Collection {
 
     // change mini mongo for optimize UI changes
     this._collection.upsert({ _id: id, ...modifier.$set });
-    
+
     Data.waitDdpConnected(()=>{
       call(`/${this._name}/update`, {_id: id}, modifier, err => {
         if(err) {
@@ -147,28 +147,6 @@ export class Collection {
     } else {
       callback(`No document with _id : ${id}`);
     }
-  }
-
-  helpers(helpers) {
-    var self = this;
-    let _transform;
-
-    if (this._transform && ! this._helpers)
-      _transform = this._transform;
-
-    if (! this._helpers) {
-      this._helpers = function Document(doc) { return _.extend(this, doc); };
-      this._transform = doc => {
-        if (_transform) {
-          doc = _transform(doc);
-        };
-        return new this._helpers(doc);
-      };
-    }
-
-    _.each(helpers, (helper, key) => {
-      this._helpers.prototype[key] = helper;
-    });
   }
 }
 
