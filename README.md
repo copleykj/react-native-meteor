@@ -1,82 +1,51 @@
 
 
-# react-native-meteor
- [![react-native-meteor](http://img.shields.io/npm/dm/react-native-meteor.svg)](https://www.npmjs.org/package/react-native-meteor) [![npm version](https://badge.fury.io/js/react-native-meteor.svg)](http://badge.fury.io/js/react-native-meteor) [![Dependency Status](https://david-dm.org/inProgress-team/react-native-meteor.svg)](https://david-dm.org/inProgress-team/react-native-meteor)
+# @socialize/react-native-meteor
+ [![react-native-meteor](http://img.shields.io/npm/dm/@socialize/react-native-meteor.svg)](https://www.npmjs.org/package/@socialize/react-native-meteor) [![npm version](https://badge.fury.io/js/%40socialize%2Freact-native-meteor.svg)](https://badge.fury.io/js/%40socialize%2Freact-native-meteor) [![Dependency Status](https://david-dm.org/copleykj/react-native-meteor/status.svg)](https://david-dm.org/copleykj/react-native-meteor) [![Gitter Chat](https://img.shields.io/gitter/room/SocializeJs/Lobby.svg)](https://gitter.im/SocializeJs/Lobby)
 
-Meteor-like methods for React Native.
 
-If you have questions, you can open a new issue in the repository or ask in the our Gitter chat:  
-https://gitter.im/react-native-meteor/Lobby
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [react-native-meteor](#react-native-meteor)
-	- [Compatibility notes](#compatibility-notes)
-	- [What is it for ?](#what-is-it-for-)
-	- [Install](#install)
-	- [Install from Git](#install-from-git)
+- [@socialize/react-native-meteor](#socializereact-native-meteor)
+	- [Installation and Setup](#installation-and-setup)
+		- [Android](#android)
 	- [Example usage](#example-usage)
-- [Connect your components](#connect-your-components)
-	- [createContainer](#createcontainer)
-		- [Example](#example)
-	- [connectMeteor && getMeteorData](#connectmeteor-getmeteordata)
-		- [Example](#example)
 - [Reactive variables](#reactive-variables)
-- [Additionals collection methods](#additionals-collection-methods)
-- [ListView Components](#listview-components)
-	- [MeteorListView Component](#meteorlistview-component)
-		- [Example usage](#example-usage)
-	- [MeteorComplexListView Component](#meteorcomplexlistview-component)
-		- [Example usage](#example-usage)
 - [API](#api)
 	- [Meteor Collections](#meteor-collections)
-		- [Meteor.subscribe](#meteorsubscribe)
-		- [Meteor.collection(collectionName, options)](#meteorcollectioncollectionname-options)
 	- [Meteor DDP connection](#meteor-ddp-connection)
-		- [Meteor.connect(endpoint, options)](#meteorconnectendpoint-options)
+		- [Meteor.connect(url, options)](#meteorconnecturl-options)
+			- [Meteor.ddp](#meteorddp)
 		- [Meteor.disconnect()](#meteordisconnect)
 	- [Meteor methods](#meteor-methods)
-	- [Availables packages](#availables-packages)
-		- [Convenience packages](#convenience-packages)
+	- [Additional packages](#additional-packages)
 		- [ReactiveDict](#reactivedict)
-		- [Meteor.Accounts](#meteoraccounts)
-		- [FSCollection](#fscollection)
-		- [Meteor.ddp](#meteorddp)
-- [How To ?](#how-to-)
-	- [react-native-router-flux](#react-native-router-flux)
-- [Author](#author)
-- [Want to help ?](#want-to-help-)
+		- [Accounts](#accounts)
+		- [React Meteor data](#react-meteor-data)
+- [Contribution](#contribution)
 
 <!-- /TOC -->
 
-## Compatibility notes
+## Installation and Setup
 
-* Since RN 0.26.0 you have to use ws or wss protocol to connect to your meteor server. http is not working on Android.
-* It is recommended to always use the latest version of react-native-meteor compatible with your RN version.
-* For RN < 0.45, you can use version 1.0.3 in case or problems.
-* For RN 0.45, use version 1.0.6 of 'react-native-meteor'
-* For RN > 0.45, use 1.1.x
-* For RN > 0.49, use 1.2.x
+```sh
+$ npm i --save react-native-meteor
+```
 
-## What is it for ?
+### Android
 
-The purpose of this library is :
-* to set up and maintain a ddp connection with a ddp server, freeing the developer from having to do it on their own.
-* be fully compatible with react-native and help react-native developers.
-* **to match with [Meteor documentation](http://docs.meteor.com/) used with React.**
+Add the follwing permission to your AndroidManifest.xml file for faster reconnects to the DDP server when your device reconnects to the network
 
+```xml
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
 
+If running an android emulator you have to forward the port of your meteor app.
 
-## Install
-
-    npm i --save react-native-meteor
-
-[!! See detailed installation guide](https://github.com/inProgress-team/react-native-meteor/blob/master/docs/Install.md)
-
-## Install from Git
-Sometimes we do not have time to update the version of the NPM package. In this case, you can use the latest version from the repository.
-
-    npm i --save https://github.com/inProgress-team/react-native-meteor
+```shell
+$ adb reverse tcp:3000 tcp:3000
+```
 
 ## Example usage
 
@@ -84,7 +53,8 @@ Sometimes we do not have time to update the version of the NPM package. In this 
 
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import Meteor, { createContainer, MeteorListView } from 'react-native-meteor';
+import Meteor, { withTracker } from 'react-native-meteor';
+import TodosCollection from '../api/todo';
 
 Meteor.connect('ws://192.168.X.X:3000/websocket');//do this only once
 
@@ -95,105 +65,29 @@ class App extends Component {
     );
   }
   render() {
-    const { settings, todosReady } = this.props;
+    const { todos, todosReady } = this.props;
 
     return(
       <View>
-        <Text>{settings.title}</Text>
-          {!todosReady && <Text>Not ready</Text>}
-
-          <MeteorListView
-            collection="todos"
-            selector={{done: true}}
-            options={{sort: {createdAt: -1}}}
-            renderRow={this.renderRow}
-          />
+          {todosReady ? todos.map(renderRow) : <View>Loading...</View>}
       </View>
     )
   }
 }
 
-export default createContainer(params=>{
-  const handle = Meteor.subscribe('todos');
-  Meteor.subscribe('settings');
-
+export default withTracker(params=>{
   return {
-    todosReady: handle.ready(),
-    settings: Meteor.collection('settings').findOne()
+    todosReady: Meteor.subscribe('todos').ready(),
+    todos: TodosCollection.find({done: false}, { sort: { createdAt: -1 }}),
   };
-}, App)
+})(App);
 ```
 
-# Connect your components
-
-[Since Meteor 1.3, createContainer is the recommended way to populate your React Components](http://guide.meteor.com/v1.3/react.html#using-createContainer).
-
-## createContainer
-
- Very similar to getMeteorData but your separate container components from presentational components.
-
-### Example
-
-```javascript
-import Meteor, { createContainer } from 'react-native-meteor';
-
-
-class Orders extends Component {
-  render() {
-    const { pendingOrders } = this.props;
-
-    //...
-    );
-  }
-}
-
-export default createContainer(params=>{
-  return {
-    pendingOrders: Meteor.collection('orders').find({status: "pending"}),
-  };
-}, Orders)
-```
-
-## connectMeteor && getMeteorData
-
-connectMeteor is a React Mixin which enables getMeteorData (the old way of populating meteor data into your components).
-
-### Example
-
-```javascript
-import Meteor, { connectMeteor } from 'react-native-meteor';
-
-/*
-* Uses decorators (see detailed installation to activate it)
-* Or use :
-
-  class Todos extends Component {
-    ...
-  }
-  connectMeteor(Todos);
-  export default Todos;
-
-*/
-
-@connectMeteor
-class Orders extends Component {
-  getMeteorData() {
-    return {
-      pendingOrders: Meteor.collection('orders').find({status: "pending"}),
-    };
-  }
-  render() {
-    const { pendingOrders } = this.data;
-
-    //...
-    );
-  }
-}
-```
+---
 
 # Reactive variables
 
-These variables can be used inside getMeteorData or createContainer. They will be populated into your component if they change.
+These variables can be used inside `withTracker`. They will be populated into your component if they change.
 
 * [Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe)
 * Meteor.collection(collectionName, options)
@@ -205,63 +99,19 @@ These variables can be used inside getMeteorData or createContainer. They will b
 * [Meteor.loggingIn()](http://docs.meteor.com/#/full/meteor_loggingin)
 * [ReactiveDict()](https://atmospherejs.com/meteor/reactive-dict)
 
-# Additionals collection methods
+---
 
-These methods (except update) work offline. That means that elements are correctly updated offline, and when you reconnect to ddp, Meteor calls are taken care of.
+# API
+
+## Meteor Collections
 
 * Meteor.collection(collectionName, options)
   * [.insert(doc, callback)](http://docs.meteor.com/#/full/insert)
   * [.update(id, modifier, [options], [callback])](http://docs.meteor.com/#/full/update)
   * [.remove(id, callback(err, countRemoved))](http://docs.meteor.com/#/full/remove)
 
-# ListView Components
-## MeteorListView Component
+These methods (except update) work offline. That means that elements are correctly updated offline, and when you reconnect to ddp, Meteor calls are taken care of.
 
-Same as [ListView](https://facebook.github.io/react-native/docs/listview.html) Component but does not need dataSource and accepts three arguments :
-
-- `collection` **string** *required*
-- `selector` [**string** / **object**]
-- `options` **object**
-- `listViewRef` [**string** / **function**] ref to ListView component.
-
-
-### Example usage
-
-```javascript
-<MeteorListView
-  collection="todos"
-  selector={{done: true}}
-  options={{sort: {createdAt: -1}}}
-  renderRow={this.renderItem}
-  //...other listview props
-/>
-```
-
-## MeteorComplexListView Component
-
-Same as [ListView](https://facebook.github.io/react-native/docs/listview.html) Component but does not need dataSource and accepts one argument. You may need it if you make complex requests combining multiples collections.
-
-- `elements` **function** *required* : a reactive function which returns an array of elements.
-- `listViewRef` [**string** / **function**] ref to ListView component.
-
-### Example usage
-
-```javascript
-<MeteorComplexListView
-  elements={()=>{return Meteor.collection('todos').find()}}
-  renderRow={this.renderItem}
-  //...other listview props
-/>
-```
-
-# API
-
-## Meteor Collections
-
-### Meteor.subscribe
-[Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe) returns an handle. If the component which called subscribe is unmounted, the subscription is automatically canceled.
-
-### Meteor.collection(collectionName, options)
 You need pass the `cursoredFind` option when you get your collection if you want to use cursor-like method:
 
 ```‍‍‍javascript
@@ -273,7 +123,7 @@ Or you can simply use `find()` to get an array of documents. The option default 
 
 ## Meteor DDP connection
 
-### Meteor.connect(endpoint, options)
+### Meteor.connect(url, options)
 
 Connect to a DDP server. You only have to do this once in your app.
 
@@ -284,6 +134,13 @@ Connect to a DDP server. You only have to do this once in your app.
   - autoConnect **boolean** [true] whether to establish the connection to the server upon instantiation. When false, one can manually establish the connection with the Meteor.ddp.connect method.
   - autoReconnect **boolean** [true] whether to try to reconnect to the server when the socket connection closes, unless the closing was initiated by a call to the disconnect method.
   - reconnectInterval **number** [10000] the interval in ms between reconnection attempts.
+
+#### Meteor.ddp
+
+Once connected to the ddp server, you can access every method available in [ddp.js](https://github.com/mondora/ddp.js/).
+* Meteor.ddp.on('connected')
+* Meteor.ddp.on('added')
+* Meteor.ddp.on('changed')
 
 ### Meteor.disconnect()
 
@@ -296,24 +153,18 @@ Disconnect from the DDP server.
 * [Meteor.logout](http://docs.meteor.com/#/full/meteor_logout)
 * [Meteor.logoutOtherClients](http://docs.meteor.com/#/full/meteor_logoutotherclients)
 
-## Availables packages
-
-###  Convenience packages
-Example `import { composeWithTracker } from 'react-native-meteor';``
-
-* EJSON
-* Tracker
-* composeWithTracker: If you want to use [react-komposer](https://github.com/kadirahq/react-komposer), you can use react-native-meteor compatible composeWithTracker
-* Accounts (see below)
+## Additional packages
 
 ### ReactiveDict
+
+`import { reactivedict } from 'react-native-meteor';`
 
 See [documentation](https://atmospherejs.com/meteor/reactive-dict).
 
 
-### Meteor.Accounts
+### Accounts
 
-`import { Accounts } from 'react-native-meteor';``
+`import { Accounts } from 'react-native-meteor';`
 
 * [Accounts.createUser](http://docs.meteor.com/#/full/accounts_createuser)
 * [Accounts.changePassword](http://docs.meteor.com/#/full/accounts_forgotpassword)
@@ -322,75 +173,14 @@ See [documentation](https://atmospherejs.com/meteor/reactive-dict).
 * [Accounts.onLogin](http://docs.meteor.com/#/full/accounts_onlogin)
 * [Accounts.onLoginFailure](http://docs.meteor.com/#/full/accounts_onloginfailure)
 
-### FSCollection
+### React Meteor data
 
-* Meteor.FSCollection(collectionName) : Helper for [Meteor-CollectionFS](https://github.com/CollectionFS/Meteor-CollectionFS). Full documentation [here](https://github.com/inProgress-team/react-native-meteor/blob/master/docs/FSCollection.md)
-* This plugin also exposes a FSCollectionImagesPreloader component which helps you preload every image you want in CollectionFS (only available on ios)
+`import { withTracker } from 'react-native-meteor';`
 
-```javascript
-import { FSCollectionImagesPreloader } from 'react-native-meteor';
+See [documentation](https://atmospherejs.com/meteor/react-meteor-data).
 
-<FSCollectionImagesPreloader
-  collection="imagesFiles"
-  selector={{metadata.owner: XXX}}
-/>
-```
+---
 
-### Meteor.ddp
-
-Once connected to the ddp server, you can access every method available in [ddp.js](https://github.com/mondora/ddp.js/).
-* Meteor.ddp.on('connected')
-* Meteor.ddp.on('added')
-* Meteor.ddp.on('changed')
-* ...
-
-# How To ?
-
-## react-native-router-flux
-
-* You can use Switch with createContainer. Example :
-```javascript
-  componentWillMount() {
-    this.scenes = Actions.create(
-        <Scene key="root" component={createContainer(this.composer, Switch)} selector={this.selector} tabs={true}>
-            <Scene key="loading" hideNavBar={true} component={Loading} />
-            <Scene key="login" hideNavBar={true}>
-              <Scene key="loginbis" component={Login} />
-            </Scene>
-
-            <Scene key="loggedIn" component={Layout}>
-                <Scene key="main" hideNavBar={true}>
-                    //...
-                </Scene>
-            </Scene>
-        </Scene>
-    );
-  }
-  composer() {
-    return {
-      connected: Meteor.status().connected,
-      user: Meteor.user()
-    }
-  }
-  selector(data, props) {
-    if(!data.connected) {
-      return "loading";
-    } else if (!data.user) {
-      return "login";
-    } else {
-      return "loggedIn";
-    }
-  }
-
-```
-
-# Author
-
-* Théo Mathieu ([@Mokto](https://github.com/Mokto))
-* From [inProgress](https://in-progress.io)
-
-![inProgress](https://in-progress.io/wp-content/uploads/2016/04/LOGO-RESPONSIVE-IPG-01-copie-1.png?2a6543)
-
-# Want to help ?
+# Contribution
 
 Pull Requests and issues reported are welcome! :)
