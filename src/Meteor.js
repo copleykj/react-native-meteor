@@ -1,10 +1,10 @@
-import {NetInfo, Platform, View} from 'react-native';
+import { NetInfo } from 'react-native';
 
 import Trackr from 'trackr';
 import EJSON from 'ejson';
 import DDP from '../lib/ddp.js';
 import Random from '../lib/Random.js';
-import Error from '../lib/Error.js'
+import MeteorError from '../lib/Error.js';
 
 import Data from './Data';
 import {Collection} from './Collection';
@@ -21,7 +21,7 @@ module.exports = {
     Accounts,
     Tracker: Trackr,
     EJSON,
-    Error: Error,
+    Error: MeteorError,
     ReactiveDict,
     Collection,
     collection(name, options) {
