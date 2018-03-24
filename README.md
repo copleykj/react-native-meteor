@@ -3,11 +3,14 @@
 # @socialize/react-native-meteor
  [![react-native-meteor](http://img.shields.io/npm/dm/@socialize/react-native-meteor.svg)](https://www.npmjs.org/package/@socialize/react-native-meteor) [![npm version](https://badge.fury.io/js/%40socialize%2Freact-native-meteor.svg)](https://badge.fury.io/js/%40socialize%2Freact-native-meteor) [![Dependency Status](https://david-dm.org/copleykj/react-native-meteor/status.svg)](https://david-dm.org/copleykj/react-native-meteor) [![Gitter Chat](https://img.shields.io/gitter/room/SocializeJs/Lobby.svg)](https://gitter.im/SocializeJs/Lobby)
 
+ This project was adapted from [react-native-meteor](https://github.com/inProgress-team/react-native-meteor) by inProgress Team to be more up to date and focused. This documentation has been revised to be more coherent, dependencies have been updated, and the API has been brought more in-line with Meteor.
 
+ If you are moving from that package to this one, you may find certain parts are missing that were deemed to be outside the scope of this package (ListViews), were removed/deprecated in meteor core or are outdated methods of connecting Tracker with your componenets (connectMeteor, composeWithTracker and createContainer).
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [@socialize/react-native-meteor](#socializereact-native-meteor)
+	- [Supporting the Project](#supporting-the-project)
 	- [Installation and Setup](#installation-and-setup)
 		- [Android](#android)
 	- [Example usage](#example-usage)
@@ -22,20 +25,25 @@
 	- [Additional packages](#additional-packages)
 		- [ReactiveDict](#reactivedict)
 		- [Accounts](#accounts)
-		- [React Meteor data](#react-meteor-data)
+		- [React Meteor Data](#react-meteor-data)
 - [Contribution](#contribution)
 
 <!-- /TOC -->
 
+## Supporting the Project
+In the spirit of keeping this and all of the packages in the [Socialize](https://atmospherejs.com/socialize) set alive, I ask that if you find this package useful, please donate to it's development.
+
+Litecoin: LXLBD9sC5dV79eQkwj7tFusUHvJA5nhuD3 / [Patreon](https://www.patreon.com/user?u=4866588) / [Paypal](https://www.paypal.me/copleykj)
+
 ## Installation and Setup
 
 ```sh
-$ npm i --save react-native-meteor
+$ npm i --save @socialize/react-native-meteor
 ```
 
 ### Android
 
-Add the follwing permission to your AndroidManifest.xml file for faster reconnects to the DDP server when your device reconnects to the network
+Add the following permission to your AndroidManifest.xml file for faster reconnects to the DDP server when your device reconnects to the network.
 
 ```xml
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -173,7 +181,7 @@ See [documentation](https://atmospherejs.com/meteor/reactive-dict).
 * [Accounts.onLogin](http://docs.meteor.com/#/full/accounts_onlogin)
 * [Accounts.onLoginFailure](http://docs.meteor.com/#/full/accounts_onloginfailure)
 
-### React Meteor data
+### React Meteor Data
 
 `import { withTracker } from 'react-native-meteor';`
 
