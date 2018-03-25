@@ -23,10 +23,11 @@ module.exports = {
     EJSON,
     Error: MeteorError,
     ReactiveDict,
-    Collection,
-    collection(name, options) {
-        return new Collection(name, options)
-    },
+    isServer: false,
+    isClient: true,
+    Mongo: {
+        Collection,
+    }
     withTracker,
     getData() {
         return Data;
