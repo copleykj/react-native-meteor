@@ -27,7 +27,7 @@ module.exports = {
     isClient: true,
     Mongo: {
         Collection,
-    }
+    },
     withTracker,
     getData() {
         return Data;
@@ -41,9 +41,6 @@ module.exports = {
             status: Data.ddp
                 ? Data.ddp.status
                 : "disconnected"
-                //retryCount: 0
-                //retryTime:
-                //reason:
         }
     },
     call,
