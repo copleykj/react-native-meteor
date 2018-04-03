@@ -7,7 +7,7 @@ import Random from '../lib/Random.js';
 import MeteorError from '../lib/Error.js';
 
 import Data from './Data';
-import {Collection} from './Collection';
+import { Collection } from './Collection';
 import call from './Call';
 
 import withTracker from './components/withTracker';
@@ -25,6 +25,7 @@ module.exports = {
     ReactiveDict,
     isServer: false,
     isClient: true,
+    isReactNative: true,
     Mongo: {
         Collection,
     },
@@ -36,12 +37,12 @@ module.exports = {
     status() {
         return {
             connected: Data.ddp
-                ? Data.ddp.status == "connected"
+                ? Data.ddp.status == 'connected'
                 : false,
             status: Data.ddp
                 ? Data.ddp.status
-                : "disconnected"
-        }
+                : 'disconnected',
+        };
     },
     call,
     disconnect() {
@@ -50,26 +51,24 @@ module.exports = {
         }
     },
     _get(obj/* , arguments */) {
-        for (var i = 1; i < arguments.length; i++) {
-            if (!(arguments[i] in obj))
-                return undefined;
+        for (let i = 1; i < arguments.length; i++) {
+            if (!(arguments[i] in obj)) { return undefined; }
             obj = obj[arguments[i]];
         }
         return obj;
     },
     _ensure(obj/* , arguments */) {
-        for (var i = 1; i < arguments.length; i++) {
-            var key = arguments[i];
-            if (!(key in obj))
-                obj[key] = {};
+        for (let i = 1; i < arguments.length; i++) {
+            const key = arguments[i];
+            if (!(key in obj)) { obj[key] = {}; }
             obj = obj[key];
         }
 
         return obj;
     },
     _delete(obj/* , arguments */) {
-        var stack = [obj];
-        var leaf = true;
+        const stack = [obj];
+        let leaf = true;
         for (var i = 1; i < arguments.length - 1; i++) {
             var key = arguments[i];
             if (!(key in obj)) {
@@ -77,96 +76,86 @@ module.exports = {
                 break;
             }
             obj = obj[key];
-            if (typeof obj !== "object")
-                break;
+            if (typeof obj !== 'object') { break; }
             stack.push(obj);
         }
 
         for (var i = stack.length - 1; i >= 0; i--) {
             var key = arguments[i + 1];
 
-            if (leaf)
-                leaf = false;
-            else
-                for (var other in stack[i][key])
-                    return;
-        // not empty -- we're done
+            if (leaf) { leaf = false; } else {
+                for (const other in stack[i][key]) { return; }
+            }
+            // not empty -- we're done
 
             delete stack[i][key];
         }
     },
     _subscriptionsRestart() {
-
-        for (var i in Data.subscriptions) {
+        for (const i in Data.subscriptions) {
             const sub = Data.subscriptions[i];
             Data.ddp.unsub(sub.subIdRemember);
             sub.subIdRemember = Data.ddp.sub(sub.name, sub.params);
         }
-
     },
     waitDdpConnected: Data.waitDdpConnected.bind(Data),
     reconnect() {
         Data.ddp && Data.ddp.connect();
     },
     connect(endpoint, options) {
-        if (!endpoint)
-            endpoint = Data._endpoint;
-        if (!options)
-            options = Data._options;
+        if (!endpoint) { endpoint = Data._endpoint; }
+        if (!options) { options = Data._options; }
 
         Data._endpoint = endpoint;
         Data._options = options;
 
         this.ddp = Data.ddp = new DDP({
-            endpoint: endpoint,
+            endpoint,
             SocketConstructor: WebSocket,
-            ...options
+            ...options,
         });
 
-        NetInfo.isConnected.addEventListener('connectionChange', isConnected => {
+        NetInfo.isConnected.addEventListener('connectionChange', (isConnected) => {
             if (isConnected && Data.ddp.autoReconnect) {
                 Data.ddp.connect();
             }
         });
 
-        Data.ddp.on("connected", () => {
+        Data.ddp.on('connected', () => {
             Data.notify('change');
 
-            console.info("Connected to DDP server.");
+            console.info('Connected to DDP server.');
             this._loadInitialUser().then(() => {
                 this._subscriptionsRestart();
             });
         });
 
         let lastDisconnect = null;
-        Data.ddp.on("disconnected", () => {
-
+        Data.ddp.on('disconnected', () => {
             Data.notify('change');
 
-            console.info("Disconnected from DDP server.");
+            console.info('Disconnected from DDP server.');
 
-            if (!Data.ddp.autoReconnect)
-                return;
+            if (!Data.ddp.autoReconnect) { return; }
 
             if (!lastDisconnect || new Date() - lastDisconnect > 3000) {
                 Data.ddp.connect();
             }
 
             lastDisconnect = new Date();
-
         });
 
-        Data.ddp.on("added", message => {
+        Data.ddp.on('added', (message) => {
             if (!Data.db[message.collection]) {
-                Data.db.addCollection(message.collection)
+                Data.db.addCollection(message.collection);
             }
             Data.db[message.collection].upsert({
                 _id: message.id,
-                ...message.fields
+                ...message.fields,
             });
         });
 
-        Data.ddp.on("ready", message => {
+        Data.ddp.on('ready', (message) => {
             const idsMap = new Map();
             for (var i in Data.subscriptions) {
                 const sub = Data.subscriptions[i];
@@ -183,41 +172,39 @@ module.exports = {
             }
         });
 
-        Data.ddp.on("changed", message => {
+        Data.ddp.on('changed', (message) => {
             Data.db[message.collection] && Data.db[message.collection].upsert({
                 _id: message.id,
-                ...message.fields
+                ...message.fields,
             });
         });
 
-        Data.ddp.on("removed", message => {
+        Data.ddp.on('removed', (message) => {
             Data.db[message.collection] && Data.db[message.collection].del(message.id);
         });
-        Data.ddp.on("result", message => {
+        Data.ddp.on('result', (message) => {
             const call = Data.calls.find(call => call.id == message.id);
-            if (typeof call.callback == 'function')
-                call.callback(message.error, message.result);
+            if (typeof call.callback === 'function') { call.callback(message.error, message.result); }
             Data.calls.splice(Data.calls.findIndex(call => call.id == message.id), 1);
         });
 
-        Data.ddp.on("nosub", message => {
-            for (var i in Data.subscriptions) {
+        Data.ddp.on('nosub', (message) => {
+            for (const i in Data.subscriptions) {
                 const sub = Data.subscriptions[i];
                 if (sub.subIdRemember == message.id) {
-                    console.warn("No subscription existing for", sub.name);
+                    console.warn('No subscription existing for', sub.name);
                 }
             }
         });
-
     },
     subscribe(name) {
-        var params = Array.prototype.slice.call(arguments, 1);
-        var callbacks = {};
+        const params = Array.prototype.slice.call(arguments, 1);
+        let callbacks = {};
         if (params.length) {
-            var lastParam = params[params.length - 1];
-            if (typeof lastParam == 'function') {
+            const lastParam = params[params.length - 1];
+            if (typeof lastParam === 'function') {
                 callbacks.onReady = params.pop();
-            } else if (lastParam && (typeof lastParam.onReady == 'function' || typeof lastParam.onError == 'function' || typeof lastParam.onStop == 'function')) {
+            } else if (lastParam && (typeof lastParam.onReady === 'function' || typeof lastParam.onError === 'function' || typeof lastParam.onStop === 'function')) {
                 callbacks = params.pop();
             }
         }
@@ -242,11 +229,10 @@ module.exports = {
         // them all active.
 
         let existing = false;
-        for (var i in Data.subscriptions) {
+        for (const i in Data.subscriptions) {
             const sub = Data.subscriptions[i];
-            if (sub.inactive && sub.name === name && EJSON.equals(sub.params, params))
-                existing = sub;
-            }
+            if (sub.inactive && sub.name === name && EJSON.equals(sub.params, params)) { existing = sub; }
+        }
 
         let id;
         if (existing) {
@@ -259,31 +245,28 @@ module.exports = {
                 // an onReady callback inside an autorun; the semantics we provide is
                 // that at the time the sub first becomes ready, we call the last
                 // onReady callback provided, if any.)
-                if (!existing.ready)
-                    existing.readyCallback = callbacks.onReady;
-                }
+                if (!existing.ready) { existing.readyCallback = callbacks.onReady; }
+            }
             if (callbacks.onStop) {
                 existing.stopCallback = callbacks.onStop;
             }
-
         } else {
-
             // New sub! Generate an id, save it locally, and send message.
 
             id = Random.id();
             const subIdRemember = Data.ddp.sub(name, params);
 
             Data.subscriptions[id] = {
-                id: id,
-                subIdRemember: subIdRemember,
-                name: name,
+                id,
+                subIdRemember,
+                name,
                 params: EJSON.clone(params),
                 inactive: false,
                 ready: false,
-                readyDeps: new Trackr.Dependency,
+                readyDeps: new Trackr.Dependency(),
                 readyCallback: callbacks.onReady,
                 stopCallback: callbacks.onStop,
-                stop: function() {
+                stop() {
                     Data.ddp.unsub(this.subIdRemember);
                     delete Data.subscriptions[this.id];
                     this.ready && this.readyDeps.changed();
@@ -291,27 +274,23 @@ module.exports = {
                     if (callbacks.onStop) {
                         callbacks.onStop();
                     }
-                }
+                },
             };
-
         }
 
         // return a handle to the application.
-        var handle = {
-            stop: function() {
-                if (Data.subscriptions[id])
-                    Data.subscriptions[id].stop();
-                }
-            ,
-            ready: function() {
-                if (!Data.subscriptions[id])
-                    return false;
+        const handle = {
+            stop() {
+                if (Data.subscriptions[id]) { Data.subscriptions[id].stop(); }
+            },
+            ready() {
+                if (!Data.subscriptions[id]) { return false; }
 
-                var record = Data.subscriptions[id];
+                const record = Data.subscriptions[id];
                 record.readyDeps.depend();
                 return record.ready;
             },
-            subscriptionId: id
+            subscriptionId: id,
         };
 
         if (Trackr.active) {
@@ -321,12 +300,12 @@ module.exports = {
             // as a change to mark the subscription "inactive" so that it can
             // be reused from the rerun.  If it isn't reused, it's killed from
             // an afterFlush.
-            Trackr.onInvalidate(function(c) {
+            Trackr.onInvalidate(function (c) {
                 if (Data.subscriptions[id]) {
                     Data.subscriptions[id].inactive = true;
                 }
 
-                Trackr.afterFlush(function() {
+                Trackr.afterFlush(function () {
                     if (Data.subscriptions[id] && Data.subscriptions[id].inactive) {
                         handle.stop();
                     }
@@ -335,6 +314,5 @@ module.exports = {
         }
 
         return handle;
-
-    }
-}
+    },
+};
