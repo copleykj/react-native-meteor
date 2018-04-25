@@ -23,7 +23,6 @@ module.exports = {
     EJSON,
     Error: MeteorError,
     ReactiveDict,
-    isServer: false,
     isClient: true,
     isReactNative: true,
     Mongo: {
