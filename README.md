@@ -1,6 +1,6 @@
 
 
-# @socialize/react-native-meteor
+# @socialize/react-native-meteor #
  [![react-native-meteor](http://img.shields.io/npm/dm/@socialize/react-native-meteor.svg)](https://www.npmjs.org/package/@socialize/react-native-meteor) [![npm version](https://badge.fury.io/js/%40socialize%2Freact-native-meteor.svg)](https://badge.fury.io/js/%40socialize%2Freact-native-meteor) [![Dependency Status](https://david-dm.org/copleykj/react-native-meteor/status.svg)](https://david-dm.org/copleykj/react-native-meteor) [![Gitter Chat](https://img.shields.io/gitter/room/SocializeJs/Lobby.svg)](https://gitter.im/SocializeJs/Lobby)
 
  This project was adapted from [react-native-meteor](https://github.com/inProgress-team/react-native-meteor) by inProgress Team to be more up to date and focused. This documentation has been revised to be more coherent, dependencies have been updated, and the API has been brought more in-line with Meteor.
@@ -9,39 +9,42 @@
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [@socialize/react-native-meteor](#socializereact-native-meteor)
-	- [Supporting the Project](#supporting-the-project)
-	- [Installation and Setup](#installation-and-setup)
-		- [Android](#android)
-	- [Example usage](#example-usage)
-- [Reactive variables](#reactive-variables)
-- [API](#api)
-	- [Meteor Collections](#meteor-collections)
-	- [Meteor DDP connection](#meteor-ddp-connection)
-		- [Meteor.connect(url, options)](#meteorconnecturl-options)
-			- [Meteor.ddp](#meteorddp)
-		- [Meteor.disconnect()](#meteordisconnect)
-	- [Meteor methods](#meteor-methods)
-	- [Additional packages](#additional-packages)
-		- [ReactiveDict](#reactivedict)
-		- [Accounts](#accounts)
-		- [React Meteor Data](#react-meteor-data)
-- [Contribution](#contribution)
+- [@socialize/react-native-meteor #](#socializereact-native-meteor-)
+	- [Supporting The Project ##](#supporting-the-project-)
+	- [Installation And Setup ##](#installation-and-setup-)
+		- [Android ###](#android-)
+	- [Example Usage ##](#example-usage-)
+- [Reactive Variables #](#reactive-variables-)
+- [API #](#api-)
+	- [Subscriptions ##](#subscriptions-)
+	- [Collections ##](#collections-)
+	- [Meteor.is/Environment/ ##](#meteorisenvironment-)
+	- [DDP connection ##](#ddp-connection-)
+		- [Meteor.connect(url, options) ###](#meteorconnecturl-options-)
+			- [Meteor.ddp ####](#meteorddp-)
+		- [Meteor.disconnect() ###](#meteordisconnect-)
+	- [Meteor Methods ##](#meteor-methods-)
+	- [Additional Packages ##](#additional-packages-)
+		- [ReactiveDict ###](#reactivedict-)
+		- [Accounts ###](#accounts-)
+		- [React Meteor Data ###](#react-meteor-data-)
+- [Contribution #](#contribution-)
 
 <!-- /TOC -->
 
-## Supporting the Project
+## Supporting The Project ##
+
 In the spirit of keeping this and all of the packages in the [Socialize](https://atmospherejs.com/socialize) set alive, I ask that if you find this package useful, please donate to it's development.
 
 Litecoin: LXLBD9sC5dV79eQkwj7tFusUHvJA5nhuD3 / [Patreon](https://www.patreon.com/user?u=4866588) / [Paypal](https://www.paypal.me/copleykj)
 
-## Installation and Setup
+## Installation And Setup ##
 
 ```sh
 $ npm i --save @socialize/react-native-meteor
 ```
 
-### Android
+### Android ###
 
 Add the following permission to your AndroidManifest.xml file for faster reconnects to the DDP server when your device reconnects to the network.
 
@@ -55,7 +58,7 @@ If running an android emulator you have to forward the port of your meteor app.
 $ adb reverse tcp:3000 tcp:3000
 ```
 
-## Example usage
+## Example Usage ##
 
 ```javascript
 
@@ -93,45 +96,71 @@ export default withTracker(params=>{
 
 ---
 
-# Reactive variables
+# Reactive Variables #
 
 These variables can be used inside `withTracker`. They will be populated into your component if they change.
 
 * [Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe)
-* Meteor.collection(collectionName, options)
+* Mongo.Collection(collectionName, options)
   * [.find(selector, options)](http://docs.meteor.com/#/full/find)
   * [.findOne(selector, options)](http://docs.meteor.com/#/full/findone)
 * [Meteor.user()](http://docs.meteor.com/#/full/meteor_user)
 * [Meteor.userId()](http://docs.meteor.com/#/full/meteor_userid)
-* [Meteor.status()](http://docs.meteor.com/#/full/meteor_status)
 * [Meteor.loggingIn()](http://docs.meteor.com/#/full/meteor_loggingin)
+* [Meteor.status()](http://docs.meteor.com/#/full/meteor_status)
 * [ReactiveDict()](https://atmospherejs.com/meteor/reactive-dict)
 
 ---
 
-# API
+# API #
 
-## Meteor Collections
+## Subscriptions ##
 
-* Meteor.collection(collectionName, options)
+* [Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe)
+
+```javascript
+import Meteor, { Tracker } from '@socialize/react-native-meteor';
+
+const handle = Meteor.subscribe('socialize.friends');
+
+Tracker.autorun(() =>{    
+    if(handle.ready()){
+        console.log('Subscription ready...');
+        handle.stop();
+    }
+});
+```
+
+## Collections ##
+
+* Mongo.Collection(collectionName, options)
   * [.insert(doc, callback)](http://docs.meteor.com/#/full/insert)
   * [.update(id, modifier, [options], [callback])](http://docs.meteor.com/#/full/update)
   * [.remove(id, callback(err, countRemoved))](http://docs.meteor.com/#/full/remove)
 
-These methods (except update) work offline. That means that elements are correctly updated offline, and when you reconnect to ddp, Meteor calls are taken care of.
+These methods work offline. That means that elements are correctly updated offline, and when you reconnect to ddp, Meteor calls are taken care of.
 
 You need pass the `cursoredFind` option when you get your collection if you want to use cursor-like method:
 
-```‍‍‍javascript
-Meteor.collection("collectionName", { cursoredFind: true })
+```javascript
+import { Mongo } from '@socialize/react-native-meteor';
+
+Mongo.Collection("collectionName", { cursoredFind: true });
 ```
 
 Or you can simply use `find()` to get an array of documents. The option default to false for backward compatibility. Cursor methods are available to share code more easily between a react-native app and a standard Meteor app.
 
+## Meteor.is/Environment/ ##
 
-## Meteor DDP connection
+Keeping in line with Meteor's API, `isClient` is provided as well as a `isReactNative`, similar to how Meteor provides `isCordova` when code is running in a cordova build. `isServer` and `isCordova` are not provided as they will still be falsey when checking. These properties allow for code reuse across your codebases.
 
-### Meteor.connect(url, options)
+* Meteor.isClient - True
+* Meteor.isReactNative - True
+
+
+## DDP connection ##
+
+### Meteor.connect(url, options) ###
 
 Connect to a DDP server. You only have to do this once in your app.
 
@@ -143,36 +172,38 @@ Connect to a DDP server. You only have to do this once in your app.
   - autoReconnect **boolean** [true] whether to try to reconnect to the server when the socket connection closes, unless the closing was initiated by a call to the disconnect method.
   - reconnectInterval **number** [10000] the interval in ms between reconnection attempts.
 
-#### Meteor.ddp
+#### Meteor.ddp ####
 
 Once connected to the ddp server, you can access every method available in [ddp.js](https://github.com/mondora/ddp.js/).
 * Meteor.ddp.on('connected')
 * Meteor.ddp.on('added')
 * Meteor.ddp.on('changed')
 
-### Meteor.disconnect()
+### Meteor.disconnect() ###
 
 Disconnect from the DDP server.
 
-## Meteor methods
+## Meteor Methods ##
 
 * [Meteor.call](http://docs.meteor.com/#/full/meteor_call)
-* [Meteor.loginWithPassword](http://docs.meteor.com/#/full/meteor_loginwithpassword) (Please note that user is auto-resigned in - like in Meteor Web applications - thanks to React Native AsyncStorage.)
-* [Meteor.logout](http://docs.meteor.com/#/full/meteor_logout)
-* [Meteor.logoutOtherClients](http://docs.meteor.com/#/full/meteor_logoutotherclients)
 
-## Additional packages
 
-### ReactiveDict
+## Additional Packages ##
 
-`import { reactivedict } from 'react-native-meteor';`
+### ReactiveDict ###
+
+```javascript
+import { reactivedict } from 'react-native-meteor';
+```
 
 See [documentation](https://atmospherejs.com/meteor/reactive-dict).
 
 
-### Accounts
+### Accounts ###
 
-`import { Accounts } from 'react-native-meteor';`
+```javascript
+import Meteor, { Accounts } from 'react-native-meteor';
+```
 
 * [Accounts.createUser](http://docs.meteor.com/#/full/accounts_createuser)
 * [Accounts.changePassword](http://docs.meteor.com/#/full/accounts_forgotpassword)
@@ -180,15 +211,23 @@ See [documentation](https://atmospherejs.com/meteor/reactive-dict).
 * [Accounts.resetPassword](http://docs.meteor.com/#/full/accounts_resetpassword)
 * [Accounts.onLogin](http://docs.meteor.com/#/full/accounts_onlogin)
 * [Accounts.onLoginFailure](http://docs.meteor.com/#/full/accounts_onloginfailure)
+* [Meteor.user()](http://docs.meteor.com/#/full/meteor_user)
+* [Meteor.userId()](http://docs.meteor.com/#/full/meteor_userid)
+* [Meteor.loggingIn()](http://docs.meteor.com/#/full/meteor_loggingin)
+* [Meteor.loginWithPassword](http://docs.meteor.com/#/full/meteor_loginwithpassword) (Please note that user is auto-resigned in - like in Meteor Web applications - thanks to React Native AsyncStorage.)
+* [Meteor.logout](http://docs.meteor.com/#/full/meteor_logout)
+* [Meteor.logoutOtherClients](http://docs.meteor.com/#/full/meteor_logoutotherclients)
 
-### React Meteor Data
+### React Meteor Data ###
 
-`import { withTracker } from 'react-native-meteor';`
+```javascript
+import { withTracker } from 'react-native-meteor';
+```
 
 See [documentation](https://atmospherejs.com/meteor/react-meteor-data).
 
 ---
 
-# Contribution
+# Contribution #
 
 Pull Requests and issues reported are welcome! :)
