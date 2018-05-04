@@ -1,9 +1,17 @@
-import { AsyncStorage } from 'react-native';
-
 import Data from '../Data';
 import { hashPassword } from '../../lib/utils';
 import call from '../Call';
 import { Collection } from '../Collection';
+import isReactNative from '../isReactNative';
+
+let Storage;
+
+if (isReactNative) {
+    // eslint-disable-next-line
+    Storage = require('react-native').AsyncStorage;
+} else {
+    Storage = localStorage;
+}
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 
@@ -33,7 +41,7 @@ module.exports = {
         });
     },
     handleLogout() {
-        AsyncStorage.removeItem(TOKEN_KEY);
+        Storage.removeItem(TOKEN_KEY);
         Data._tokenIdSaved = null;
         this._userIdSaved = null;
     },
@@ -85,7 +93,7 @@ module.exports = {
     },
     _handleLoginCallback(err, result) {
         if (!err) { // save user id and token
-            AsyncStorage.setItem(TOKEN_KEY, result.token);
+            Storage.setItem(TOKEN_KEY, result.token);
             Data._tokenIdSaved = result.token;
             this._userIdSaved = result.id;
             Data.notify('onLogin');
@@ -113,9 +121,9 @@ module.exports = {
     async _loadInitialUser() {
         let value = null;
         try {
-            value = await AsyncStorage.getItem(TOKEN_KEY);
+            value = await Storage.getItem(TOKEN_KEY);
         } catch (error) {
-            console.warn(`AsyncStorage error: ${error.message}`);
+            console && console.warn(`Error Loading User: ${error.message}`);
         } finally {
             this._loginWithToken(value);
         }

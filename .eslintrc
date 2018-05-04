@@ -7,6 +7,8 @@
         "es6": true
     },
     "rules": {
+        "global-require": 0,
+        "no-param-reassign": 0,
         "import/no-extraneous-dependencies": "off",
         "import/extensions": "off",
         "max-len": 0,

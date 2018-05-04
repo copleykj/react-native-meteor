@@ -1,10 +1,9 @@
-import { NetInfo } from 'react-native';
-
 import Trackr from 'trackr';
 import EJSON from 'ejson';
 import DDP from '../lib/ddp.js';
 import Random from '../lib/Random.js';
 import MeteorError from '../lib/Error.js';
+import isReactNative from './isReactNative.js';
 
 import Data from './Data';
 import { Collection } from './Collection';
@@ -17,6 +16,12 @@ import ReactiveDict from './ReactiveDict';
 import User from './user/User';
 import Accounts from './user/Accounts';
 
+let NetInfo;
+if (isReactNative) {
+    NetInfo = require('react-native').NetInfo;  // eslint-disable-line
+}
+
+
 module.exports = {
     Accounts,
     Tracker: Trackr,
@@ -24,7 +29,7 @@ module.exports = {
     Error: MeteorError,
     ReactiveDict,
     isClient: true,
-    isReactNative: true,
+    isReactNative,
     Mongo: {
         Collection,
     },
@@ -36,7 +41,7 @@ module.exports = {
     status() {
         return {
             connected: Data.ddp
-                ? Data.ddp.status == 'connected'
+                ? Data.ddp.status === 'connected'
                 : false,
             status: Data.ddp
                 ? Data.ddp.status
@@ -123,7 +128,7 @@ module.exports = {
         Data.ddp.on('connected', () => {
             Data.notify('change');
 
-            console.info('Connected to DDP server.');
+            console && console.info('Connected to DDP server.');
             this._loadInitialUser().then(() => {
                 this._subscriptionsRestart();
             });
@@ -133,8 +138,7 @@ module.exports = {
         Data.ddp.on('disconnected', () => {
             Data.notify('change');
 
-            console.info('Disconnected from DDP server.');
-
+            console && console.info('Disconnected from DDP server.');
             if (!Data.ddp.autoReconnect) { return; }
 
             if (!lastDisconnect || new Date() - lastDisconnect > 3000) {
@@ -299,12 +303,12 @@ module.exports = {
             // as a change to mark the subscription "inactive" so that it can
             // be reused from the rerun.  If it isn't reused, it's killed from
             // an afterFlush.
-            Trackr.onInvalidate(function (c) {
+            Trackr.onInvalidate(() => {
                 if (Data.subscriptions[id]) {
                     Data.subscriptions[id].inactive = true;
                 }
 
-                Trackr.afterFlush(function () {
+                Trackr.afterFlush(() => {
                     if (Data.subscriptions[id] && Data.subscriptions[id].inactive) {
                         handle.stop();
                     }
