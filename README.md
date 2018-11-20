@@ -10,24 +10,24 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [@socialize/react-native-meteor](#socializereact-native-meteor)
-	- [Supporting The Project](#supporting-the-project)
-	- [Installation And Setup](#installation-and-setup)
-		- [Android](#android)
-	- [Example Usage](#example-usage)
+  - [Supporting The Project](#supporting-the-project)
+  - [Installation And Setup](#installation-and-setup)
+    - [Android](#android)
+  - [Example Usage](#example-usage)
 - [Reactive Variables](#reactive-variables)
 - [API](#api)
-	- [Subscriptions](#subscriptions)
-	- [Collections](#collections)
-	- [Meteor.is/Environment/](#meteorisenvironment)
-	- [DDP connection](#ddp-connection)
-		- [Meteor.connect(url, options)](#meteorconnecturl-options)
-			- [Meteor.ddp](#meteorddp)
-		- [Meteor.disconnect()](#meteordisconnect)
-	- [Meteor Methods](#meteor-methods)
-	- [Additional Packages](#additional-packages)
-		- [ReactiveDict](#reactivedict)
-		- [Accounts](#accounts)
-		- [React Meteor Data](#react-meteor-data)
+  - [Subscriptions](#subscriptions)
+  - [Collections](#collections)
+  - [Meteor.is/Environment/](#meteorisenvironment)
+  - [DDP connection](#ddp-connection)
+    - [Meteor.connect(url, options)](#meteorconnecturl-options)
+      - [Meteor.ddp](#meteorddp)
+    - [Meteor.disconnect()](#meteordisconnect)
+  - [Meteor Methods](#meteor-methods)
+  - [Additional Packages](#additional-packages)
+    - [ReactiveDict](#reactivedict)
+    - [Accounts](#accounts)
+    - [React Meteor Data](#react-meteor-data)
 - [Contribution](#contribution)
 
 <!-- /TOC -->
@@ -36,7 +36,9 @@
 
 In the spirit of keeping this and all of the packages in the [Socialize](https://atmospherejs.com/socialize) set alive, I ask that if you find this package useful, please donate to it's development.
 
-Litecoin: LXLBD9sC5dV79eQkwj7tFusUHvJA5nhuD3 / [Patreon](https://www.patreon.com/user?u=4866588) / [Paypal](https://www.paypal.me/copleykj)
+![Litecoin](http://gdurl.com/xnOe)
+
+[Patreon](https://www.patreon.com/user?u=4866588) / [Paypal](https://www.paypal.me/copleykj)
 
 ## Installation And Setup
 
@@ -123,7 +125,7 @@ import Meteor, { Tracker } from '@socialize/react-native-meteor';
 
 const handle = Meteor.subscribe('socialize.friends');
 
-Tracker.autorun(() =>{    
+Tracker.autorun(() =>{
     if(handle.ready()){
         console.log('Subscription ready...');
         handle.stop();
