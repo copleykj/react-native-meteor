@@ -118,10 +118,13 @@ module.exports = {
     getAuthToken() {
         return Data._tokenIdSaved;
     },
+    getAuthTokenFromStorage() {
+        return Storage.getItem(TOKEN_KEY);
+    },
     async _loadInitialUser() {
         let value = null;
         try {
-            value = await Storage.getItem(TOKEN_KEY);
+            value = await this.getAuthTokenFromStorage();
         } catch (error) {
             console && console.warn(`Error Loading User: ${error.message}`);
         } finally {
