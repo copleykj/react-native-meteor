@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Tracker from 'trackr';
 import EJSON from 'ejson';
 
@@ -63,7 +64,13 @@ export class Collection {
   }
 
   findOne(selector, options) {
-    let result = this.find(selector, options);
+    let result;
+
+    if(selector._id && !options) {
+      result = this.get(selector._id);
+    } else {
+      resutl = this.find(selector, options);
+    }
 
     if (result) {
       if (this._cursoredFind) result = result.fetch();
@@ -109,16 +116,18 @@ export class Collection {
       options = {};
     }
 
-    if(!this._collection.get(id)) return callback({
+    const element = this.findOne(id);
+
+    if(!element) return callback({
       error: 409,
       reason: `Item not found in collection ${this._name} with id ${id}`
     });
 
     // change mini mongo for optimize UI changes
-    this._collection.upsert({ _id: id, ...modifier.$set });
+    this._collection.upsert({ _id: element._id, ...modifier.$set });
 
     Data.waitDdpConnected(()=>{
-      call(`/${this._name}/update`, {_id: id}, modifier, err => {
+      call(`/${this._name}/update`, {_id: element._id}, modifier, err => {
         if(err) {
           return callback(err);
         }
@@ -135,7 +144,7 @@ export class Collection {
       this._collection.del(element._id);
 
       Data.waitDdpConnected(()=>{
-        call(`/${this._name}/remove`, {_id: id}, (err, res) => {
+        call(`/${this._name}/remove`, {_id: element._id}, (err, res) => {
           if(err) {
             this._collection.upsert(element);
             return callback(err);
