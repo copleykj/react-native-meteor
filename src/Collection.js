@@ -67,15 +67,15 @@ export class Collection {
     let result;
 
     if(selector._id && !options) {
-      result = this.get(selector._id);
+      result = this._collection.get(selector._id);
+      if (result && this._transform) result = this._transform(result);
     } else {
-      resutl = this.find(selector, options);
-    }
+      result = this.find(selector, options);
+      if (result) {
+        if (this._cursoredFind) result = result.fetch();
 
-    if (result) {
-      if (this._cursoredFind) result = result.fetch();
-
-      result = result[0];
+        result = result[0];
+      }
     }
 
     return result;
