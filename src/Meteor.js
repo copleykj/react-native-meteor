@@ -24,6 +24,8 @@ if (isReactNative) {
 }
 
 
+let unsubscribe;
+
 module.exports = {
     Accounts,
     Random,
@@ -55,6 +57,9 @@ module.exports = {
     disconnect() {
         if (Data.ddp) {
             Data.ddp.disconnect();
+        }
+        if (unsubscribe) {
+            unsubscribe();
         }
     },
     _get(obj/* , arguments */) {
@@ -122,11 +127,14 @@ module.exports = {
             ...options,
         });
 
-        NetInfo.isConnected.addEventListener('connectionChange', (isConnected) => {
-            if (isConnected && Data.ddp.autoReconnect) {
-                Data.ddp.connect();
-            }
-        });
+        if (NetInfo) {
+            unsubscribe = NetInfo.addEventListener('connectionChange', ({ isConnected }) => {
+                if (isConnected && Data.ddp.autoReconnect) {
+                    Data.ddp.connect();
+                }
+            });
+        }
+
 
         Data.ddp.on('connected', () => {
             Data.notify('change');
