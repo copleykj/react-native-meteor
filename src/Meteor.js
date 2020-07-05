@@ -57,9 +57,11 @@ module.exports = {
     disconnect() {
         if (Data.ddp) {
             Data.ddp.disconnect();
+            Data.ddp = null;
         }
         if (unsubscribe) {
             unsubscribe();
+            unsubscribe = null;
         }
     },
     _get(obj/* , arguments */) {
@@ -112,113 +114,121 @@ module.exports = {
     },
     waitDdpConnected: Data.waitDdpConnected.bind(Data),
     reconnect() {
-        Data.ddp && Data.ddp.connect();
+        if (Data.ddp) {
+            Data.ddp.connect();
+        } else {
+            this.connect();
+        }
     },
     connect(endpoint, options) {
-        if (!endpoint) { endpoint = Data._endpoint; }
-        if (!options) { options = Data._options; }
+        if (!Data.ddp) {
+            if (!endpoint) { endpoint = Data._endpoint; }
+            if (!options) { options = Data._options; }
 
-        Data._endpoint = endpoint;
-        Data._options = options;
+            Data._endpoint = endpoint;
+            Data._options = options;
 
-        this.ddp = Data.ddp = new DDP({
-            endpoint,
-            SocketConstructor: WebSocket,
-            ...options,
-        });
-
-        if (NetInfo) {
-            unsubscribe = NetInfo.addEventListener('connectionChange', ({ isConnected }) => {
-                if (isConnected && Data.ddp.autoReconnect) {
-                    Data.ddp.connect();
-                }
+            this.ddp = Data.ddp = new DDP({
+                endpoint,
+                SocketConstructor: WebSocket,
+                ...options,
             });
-        }
 
-
-        Data.ddp.on('connected', () => {
-            Data.notify('change');
-
-            console && console.info('Connected to DDP server.');
-            this._loadInitialUser().then(() => {
-                this._subscriptionsRestart();
-            });
-        });
-
-        let lastDisconnect = null;
-        Data.ddp.on('disconnected', () => {
-            Data.notify('change');
-
-            console && console.info('Disconnected from DDP server.');
-            if (!Data.ddp.autoReconnect) { return; }
-
-            if (!lastDisconnect || new Date() - lastDisconnect > 3000) {
-                Data.ddp.connect();
-            }
-
-            lastDisconnect = new Date();
-        });
-
-        Data.ddp.on('added', (message) => {
-            if (!Data.db[message.collection]) {
-                Data.db.addCollection(message.collection);
-            }
-            Data.db[message.collection].upsert({
-                _id: message.id,
-                ...message.fields,
-            });
-        });
-
-        Data.ddp.on('ready', (message) => {
-            const idsMap = new Map();
-            for (var i in Data.subscriptions) {
-                const sub = Data.subscriptions[i];
-                idsMap.set(sub.subIdRemember, sub.id);
-            }
-            for (var i in message.subs) {
-                const subId = idsMap.get(message.subs[i]);
-                if (subId) {
-                    const sub = Data.subscriptions[subId];
-                    sub.ready = true;
-                    sub.readyDeps.changed();
-                    sub.readyCallback && sub.readyCallback();
-                }
-            }
-        });
-
-        Data.ddp.on('changed', (message) => {
-            const unset = {};
-            if (message.cleared) {
-                message.cleared.forEach((field) => {
-                    unset[field] = null;
+            if (NetInfo) {
+                unsubscribe = NetInfo.addEventListener('connectionChange', ({ isConnected }) => {
+                    if (isConnected && Data.ddp.autoReconnect) {
+                        Data.ddp.connect();
+                    }
                 });
             }
 
-            Data.db[message.collection] &&
+
+            Data.ddp.on('connected', () => {
+                Data.notify('change');
+
+                console && console.info('Connected to DDP server.');
+                this._loadInitialUser().then(() => {
+                    this._subscriptionsRestart();
+                });
+            });
+
+            let lastDisconnect = null;
+            Data.ddp.on('disconnected', () => {
+                Data.notify('change');
+
+                console && console.info('Disconnected from DDP server.');
+                if (!Data.ddp.autoReconnect) { return; }
+
+                if (!lastDisconnect || new Date() - lastDisconnect > 3000) {
+                    Data.ddp.connect();
+                }
+
+                lastDisconnect = new Date();
+            });
+
+            Data.ddp.on('added', (message) => {
+                if (!Data.db[message.collection]) {
+                    Data.db.addCollection(message.collection);
+                }
                 Data.db[message.collection].upsert({
                     _id: message.id,
                     ...message.fields,
-                    ...unset,
                 });
-        });
+            });
 
-        Data.ddp.on('removed', (message) => {
-            Data.db[message.collection] && Data.db[message.collection].del(message.id);
-        });
-        Data.ddp.on('result', (message) => {
-            const call = Data.calls.find(call => call.id == message.id);
-            if (typeof call.callback === 'function') { call.callback(message.error, message.result); }
-            Data.calls.splice(Data.calls.findIndex(call => call.id == message.id), 1);
-        });
-
-        Data.ddp.on('nosub', (message) => {
-            for (const i in Data.subscriptions) {
-                const sub = Data.subscriptions[i];
-                if (sub.subIdRemember == message.id) {
-                    console.warn('No subscription existing for', sub.name);
+            Data.ddp.on('ready', (message) => {
+                const idsMap = new Map();
+                for (var i in Data.subscriptions) {
+                    const sub = Data.subscriptions[i];
+                    idsMap.set(sub.subIdRemember, sub.id);
                 }
-            }
-        });
+                for (var i in message.subs) {
+                    const subId = idsMap.get(message.subs[i]);
+                    if (subId) {
+                        const sub = Data.subscriptions[subId];
+                        sub.ready = true;
+                        sub.readyDeps.changed();
+                        sub.readyCallback && sub.readyCallback();
+                    }
+                }
+            });
+
+            Data.ddp.on('changed', (message) => {
+                const unset = {};
+                if (message.cleared) {
+                    message.cleared.forEach((field) => {
+                        unset[field] = null;
+                    });
+                }
+
+                Data.db[message.collection] &&
+                    Data.db[message.collection].upsert({
+                        _id: message.id,
+                        ...message.fields,
+                        ...unset,
+                    });
+            });
+
+            Data.ddp.on('removed', (message) => {
+                Data.db[message.collection] && Data.db[message.collection].del(message.id);
+            });
+            Data.ddp.on('result', (message) => {
+                const call = Data.calls.find(call => call.id == message.id);
+                if (typeof call.callback === 'function') { call.callback(message.error, message.result); }
+                Data.calls.splice(Data.calls.findIndex(call => call.id == message.id), 1);
+            });
+
+            Data.ddp.on('nosub', (message) => {
+                for (const i in Data.subscriptions) {
+                    const sub = Data.subscriptions[i];
+                    if (sub.subIdRemember == message.id) {
+                        console.warn('No subscription existing for', sub.name);
+                    }
+                }
+            });
+        } else {
+            this.reconnect();
+        }
     },
     subscribe(name) {
         const params = Array.prototype.slice.call(arguments, 1);
