@@ -10,6 +10,7 @@ import { Collection } from './Collection';
 import call from './Call';
 
 import withTracker from './components/withTracker';
+import userTracker from './components/userTracker';
 
 import ReactiveDict from './ReactiveDict';
 
