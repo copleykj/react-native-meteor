@@ -32,6 +32,10 @@
     "trackr": "^2.0.2",
     "wolfy87-eventemitter": "^5.2.4"
   },
+  "optionalDependencies": {
+    "@react-native-community/netinfo": "5.9.4",
+    "@react-native-community/async-storage": "^1.11.0"
+  },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
@@ -39,7 +43,7 @@
     "sinon": "^1.17.3"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "^0.54.0"
+    "react": "^16.8.0",
+    "react-native": ">=npm 0.59.0"
   }
 }
