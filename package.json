@@ -4,7 +4,9 @@
   "description": "Full Meteor Client for React Native",
   "main": "src/Meteor.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register --require test/setup --recursive"
+    "test": "mocha --compilers js:babel-core/register --require test/setup --recursive",
+    "publish-public": "npm publish --access public",
+    "publish-beta": "npm publish --access public --tag beta"
   },
   "repository": {
     "type": "git",
