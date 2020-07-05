@@ -26,6 +26,7 @@ if (isReactNative) {
 
 module.exports = {
     Accounts,
+    Random,
     Tracker: Trackr,
     EJSON,
     Error: MeteorError,
