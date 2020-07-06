@@ -136,7 +136,7 @@ module.exports = {
             });
 
             if (NetInfo) {
-                unsubscribe = NetInfo.addEventListener('connectionChange', ({ isConnected }) => {
+                unsubscribe = NetInfo.addEventListener(({ isConnected }) => {
                     if (isConnected && Data.ddp.autoReconnect) {
                         Data.ddp.connect();
                     }
