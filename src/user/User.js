@@ -16,23 +16,23 @@ if (isReactNative) {
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 
 module.exports = {
-    user() {
+    user () {
         if (!this._userIdSaved) return null;
 
         return this.users.findOne(this._userIdSaved);
     },
     users: new Collection('users'),
-    userId() {
+    userId () {
         if (!this._userIdSaved) return null;
 
         const user = this.users.findOne(this._userIdSaved);
         return user && user._id;
     },
     _isLoggingIn: true,
-    loggingIn() {
+    loggingIn () {
         return this._isLoggingIn;
     },
-    logout(callback) {
+    logout (callback) {
         call('logout', (err) => {
             this.handleLogout();
             this.connect();
@@ -40,12 +40,12 @@ module.exports = {
             typeof callback === 'function' && callback(err);
         });
     },
-    handleLogout() {
+    handleLogout () {
         Storage.removeItem(TOKEN_KEY);
         Data._tokenIdSaved = null;
         this._userIdSaved = null;
     },
-    loginWithPassword(selector, password, callback) {
+    loginWithPassword (selector, password, callback) {
         if (typeof selector === 'string') {
             if (selector.indexOf('@') === -1) { selector = { username: selector }; } else { selector = { email: selector }; }
         }
@@ -62,7 +62,7 @@ module.exports = {
             typeof callback === 'function' && callback(err);
         });
     },
-    logoutOtherClients(callback = () => {}) {
+    logoutOtherClients (callback = () => {}) {
         call('getNewToken', (err, res) => {
             if (err) return callback(err);
 
@@ -73,7 +73,7 @@ module.exports = {
             });
         });
     },
-    _login(user, callback) {
+    _login (user, callback) {
         this._startLoggingIn();
         this.call('login', user, (err, result) => {
             this._endLoggingIn();
@@ -83,15 +83,15 @@ module.exports = {
             typeof callback === 'function' && callback(err);
         });
     },
-    _startLoggingIn() {
+    _startLoggingIn () {
         this._isLoggingIn = true;
         Data.notify('loggingIn');
     },
-    _endLoggingIn() {
+    _endLoggingIn () {
         this._isLoggingIn = false;
         Data.notify('loggingIn');
     },
-    _handleLoginCallback(err, result) {
+    _handleLoginCallback (err, result) {
         if (!err) { // save user id and token
             Storage.setItem(TOKEN_KEY, result.token);
             Data._tokenIdSaved = result.token;
@@ -103,7 +103,7 @@ module.exports = {
         }
         Data.notify('change');
     },
-    _loginWithToken(value) {
+    _loginWithToken (value) {
         Data._tokenIdSaved = value;
         if (value !== null) {
             this._startLoggingIn();
@@ -115,13 +115,13 @@ module.exports = {
             this._endLoggingIn();
         }
     },
-    getAuthToken() {
+    getAuthToken () {
         return Data._tokenIdSaved;
     },
-    getAuthTokenFromStorage() {
+    getAuthTokenFromStorage () {
         return Storage.getItem(TOKEN_KEY);
     },
-    async _loadInitialUser() {
+    async _loadInitialUser () {
         let value = null;
         try {
             value = await this.getAuthTokenFromStorage();

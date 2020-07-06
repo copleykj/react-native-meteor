@@ -20,10 +20,9 @@ import Accounts from './user/Accounts';
 let NetInfo;
 if (isReactNative) {
     try {
-        NetInfo = require('@react-native-community/netinfo');  // eslint-disable-line
+        NetInfo = require('@react-native-community/netinfo');
     } catch (e) {}
 }
-
 
 let unsubscribe;
 
@@ -40,11 +39,11 @@ module.exports = {
         Collection,
     },
     withTracker,
-    getData() {
+    getData () {
         return Data;
     },
     ...User,
-    status() {
+    status () {
         return {
             connected: Data.ddp
                 ? Data.ddp.status === 'connected'
@@ -55,7 +54,7 @@ module.exports = {
         };
     },
     call,
-    disconnect() {
+    disconnect () {
         if (Data.ddp) {
             Data.ddp.disconnect();
             Data.ddp = null;
@@ -65,14 +64,14 @@ module.exports = {
             unsubscribe = null;
         }
     },
-    _get(obj/* , arguments */) {
+    _get (obj/* , arguments */) {
         for (let i = 1; i < arguments.length; i++) {
             if (!(arguments[i] in obj)) { return undefined; }
             obj = obj[arguments[i]];
         }
         return obj;
     },
-    _ensure(obj/* , arguments */) {
+    _ensure (obj/* , arguments */) {
         for (let i = 1; i < arguments.length; i++) {
             const key = arguments[i];
             if (!(key in obj)) { obj[key] = {}; }
@@ -81,7 +80,7 @@ module.exports = {
 
         return obj;
     },
-    _delete(obj/* , arguments */) {
+    _delete (obj/* , arguments */) {
         const stack = [obj];
         let leaf = true;
         for (var i = 1; i < arguments.length - 1; i++) {
@@ -106,7 +105,7 @@ module.exports = {
             delete stack[i][key];
         }
     },
-    _subscriptionsRestart() {
+    _subscriptionsRestart () {
         for (const i in Data.subscriptions) {
             const sub = Data.subscriptions[i];
             Data.ddp.unsub(sub.subIdRemember);
@@ -114,14 +113,14 @@ module.exports = {
         }
     },
     waitDdpConnected: Data.waitDdpConnected.bind(Data),
-    reconnect() {
+    reconnect () {
         if (Data.ddp) {
             Data.ddp.connect();
         } else {
             this.connect();
         }
     },
-    connect(endpoint, options) {
+    connect (endpoint, options) {
         if (!Data.ddp) {
             if (!endpoint) { endpoint = Data._endpoint; }
             if (!options) { options = Data._options; }
@@ -142,7 +141,6 @@ module.exports = {
                     }
                 });
             }
-
 
             Data.ddp.on('connected', () => {
                 Data.notify('change');
@@ -231,7 +229,7 @@ module.exports = {
             this.reconnect();
         }
     },
-    subscribe(name) {
+    subscribe (name) {
         const params = Array.prototype.slice.call(arguments, 1);
         let callbacks = {};
         if (params.length) {
@@ -300,7 +298,7 @@ module.exports = {
                 readyDeps: new Trackr.Dependency(),
                 readyCallback: callbacks.onReady,
                 stopCallback: callbacks.onStop,
-                stop() {
+                stop () {
                     Data.ddp.unsub(this.subIdRemember);
                     delete Data.subscriptions[this.id];
                     this.ready && this.readyDeps.changed();
@@ -314,10 +312,10 @@ module.exports = {
 
         // return a handle to the application.
         const handle = {
-            stop() {
+            stop () {
                 if (Data.subscriptions[id]) { Data.subscriptions[id].stop(); }
             },
-            ready() {
+            ready () {
                 if (!Data.subscriptions[id]) { return false; }
 
                 const record = Data.subscriptions[id];

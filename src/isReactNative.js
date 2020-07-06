@@ -6,7 +6,6 @@ try {
     rn = true;
 } catch (e) {}
 
-
 const isReactNative = rn;
 
 export default isReactNative;

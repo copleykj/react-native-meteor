@@ -1,34 +1,36 @@
 {
-    "extends": "airbnb",
+    "extends": "standard",
     "parser": "babel-eslint",
         "env": {
         "browser": true,
         "node": true,
         "es6": true
     },
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "plugins": [ "react" ],
+
     "rules": {
-        "global-require": 0,
-        "no-param-reassign": 0,
-        "import/no-extraneous-dependencies": "off",
-        "import/extensions": "off",
-        "max-len": 0,
-        "prefer-arrow-callback": 0,
-        "no-underscore-dangle": 0,
-        "no-restricted-syntax": [2, "WithStatement"],
-        "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
-        "no-plusplus": [2, { "allowForLoopAfterthoughts": true }],
-        "indent": [2, 4, {
-            "SwitchCase": 1,
-            "VariableDeclarator": 1,
-            "outerIIFEBody": 1,
-            "FunctionDeclaration": {
-              "parameters": 2,
-              "body": 1
-            },
-            "FunctionExpression": {
-              "parameters": 2,
-              "body": 1
-            }
-        }]
+      "semi": ["error", "always"],
+      "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
+      "comma-dangle": ["error", "always-multiline"],
+      "indent": [2, 4, {
+          "SwitchCase": 1,
+          "VariableDeclarator": 1,
+          "outerIIFEBody": 1,
+          "FunctionDeclaration": {
+            "parameters": 2,
+            "body": 1
+          },
+          "FunctionExpression": {
+            "parameters": 2,
+            "body": 1
+          }
+      }],
+      "react/jsx-uses-react": "error",
+      "react/jsx-uses-vars": "error"
     }
 }

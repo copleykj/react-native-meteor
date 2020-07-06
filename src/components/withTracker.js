@@ -1,11 +1,11 @@
 import React from 'react';
+import Tracker from 'trackr';
 import Data from '../Data';
-import {default as Tracker } from 'trackr';
 
 // A class to keep the state and utility methods needed to manage
 // the Meteor data for a component.
 class MeteorDataManager {
-    constructor(component) {
+    constructor (component) {
         this.component = component;
         this.computation = null;
         this.oldData = null;
@@ -16,7 +16,7 @@ class MeteorDataManager {
         Data.onChange(this._meteorDataChangedCallback);
     }
 
-    dispose() {
+    dispose () {
         if (this.computation) {
             this.computation.stop();
             this.computation = null;
@@ -25,7 +25,7 @@ class MeteorDataManager {
         Data.offChange(this._meteorDataChangedCallback);
     }
 
-    calculateData() {
+    calculateData () {
         const component = this.component;
 
         if (!component.getMeteorData) {
@@ -49,7 +49,7 @@ class MeteorDataManager {
                 const savedSetState = component.setState;
                 try {
                     component.setState = () => {
-                        throw new Error('Can\'t call `setState` inside `getMeteorData` as this could ' + 'cause an endless loop. To respond to Meteor data changing, ' + 'consider making this component a \"wrapper component\" that ' + 'only fetches data and passes it in as props to a child ' + 'component. Then you can use `componentWillReceiveProps` in ' + 'that child component.');
+                        throw new Error('Can\'t call `setState` inside `getMeteorData` as this could ' + 'cause an endless loop. To respond to Meteor data changing, ' + 'consider making this component a "wrapper component" that ' + 'only fetches data and passes it in as props to a child ' + 'component. Then you can use `componentWillReceiveProps` in ' + 'that child component.');
                     };
 
                     data = component.getMeteorData();
@@ -74,7 +74,7 @@ class MeteorDataManager {
         return data;
     }
 
-    updateData(newData) {
+    updateData (newData) {
         const component = this.component;
         const oldData = this.oldData;
 
@@ -102,7 +102,7 @@ class MeteorDataManager {
 }
 
 export const ReactMeteorData = {
-    componentDidUpdate(nextProps, nextState) {
+    componentDidUpdate (nextProps, nextState) {
         const saveProps = this.props;
         const saveState = this.state;
         let newData;
@@ -125,9 +125,9 @@ export const ReactMeteorData = {
         this._meteorDataManager.updateData(newData);
     },
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this._meteorDataManager.dispose();
-    }
+    },
 };
 
 class ReactComponent extends React.Component {}
@@ -135,11 +135,11 @@ Object.assign(ReactComponent.prototype, ReactMeteorData);
 class ReactPureComponent extends React.PureComponent {}
 Object.assign(ReactPureComponent.prototype, ReactMeteorData);
 
-export default function connect(options) {
+export default function connect (options) {
     let expandedOptions = options;
     if (typeof options === 'function') {
         expandedOptions = {
-            getMeteorData: options
+            getMeteorData: options,
         };
     }
 
@@ -148,21 +148,23 @@ export default function connect(options) {
     const BaseComponent = pure ? ReactPureComponent : ReactComponent;
 
     return (WrappedComponent) => (class ReactMeteorDataComponent extends BaseComponent {
-        constructor(props) {
+        constructor (props) {
             super(props);
             Data.waitDdpReady(() => {
                 if (this.getMeteorData) {
-                this.data = {};
-                this._meteorDataManager = new MeteorDataManager(this);
-                const newData = this._meteorDataManager.calculateData();
-                this._meteorDataManager.updateData(newData);
+                    this.data = {};
+                    this._meteorDataManager = new MeteorDataManager(this);
+                    const newData = this._meteorDataManager.calculateData();
+                    this._meteorDataManager.updateData(newData);
                 }
             });
         }
-        getMeteorData() {
+
+        getMeteorData () {
             return getMeteorData(this.props);
         }
-        render() {
+
+        render () {
             return <WrappedComponent {...this.props} {...this.data}/>;
         }
     });
