@@ -8,7 +8,7 @@ let Storage;
 
 if (isReactNative) {
     // eslint-disable-next-line
-    Storage = require('react-native-community/async-storage').default;
+    Storage = require('@react-native-community/async-storage').default;
 } else {
     Storage = localStorage;
 }
