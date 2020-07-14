@@ -31,7 +31,6 @@ export class Collection {
     if (!Data.db[name]) Data.db.addCollection(name);
 
     this._collection = Data.db[name];
-    this._cursoredFind = options.cursoredFind;
     this._name = name;
     this._transform = wrapTransform(options.transform);
   }
@@ -46,21 +45,14 @@ export class Collection {
       } else {
         docs = this._collection.get(selector);
       }
-
-      if (docs) docs = [ docs ];
+      if (docs) {
+        docs = [docs];
+      }
     } else {
       docs = this._collection.find(selector, options);
     }
 
-    if (this._cursoredFind) {
-      result = new Cursor(this, docs);
-    } else {
-      if (docs && this._transform) docs = docs.map(this._transform);
-
-      result = docs;
-    }
-
-    return result;
+    return new Cursor(this, docs);;
   }
 
   findOne(selector, options) {
