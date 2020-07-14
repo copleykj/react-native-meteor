@@ -10,7 +10,7 @@ import { Collection } from './Collection';
 import call from './Call';
 
 import withTracker from './components/withTracker';
-import userTracker from './components/userTracker';
+import useTracker from './components/useTracker';
 
 import ReactiveDict from './ReactiveDict';
 
@@ -39,6 +39,7 @@ module.exports = {
         Collection,
     },
     withTracker,
+    useTracker,
     getData () {
         return Data;
     },
