@@ -3,12 +3,20 @@ import { hashPassword } from '../../lib/utils';
 import call from '../Call';
 import { Collection } from '../Collection';
 import isReactNative from '../isReactNative';
+import MeteorError from '../../lib/Error';
 
 let Storage;
 
 if (isReactNative) {
-    // eslint-disable-next-line
-    Storage = require('@react-native-community/async-storage').default;
+    try {
+        Storage = require('@react-native-community/async-storage').default;
+    } catch (e) {
+        throw new MeteorError(
+            'RequiresAsyncStorage',
+            `@socialize/react-native-meteor requires on @react-native-community/async-storage.
+            please run npm install --save @react-native-community/async-storage`,
+        );
+    }
 } else {
     Storage = localStorage;
 }

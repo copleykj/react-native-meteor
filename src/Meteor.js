@@ -21,7 +21,13 @@ let NetInfo;
 if (isReactNative) {
     try {
         NetInfo = require('@react-native-community/netinfo');
-    } catch (e) {}
+    } catch (e) {
+        throw new MeteorError(
+            'RequiresNetInfo',
+            `@socialize/react-native-meteor requires on @react-native-community/netinfo.
+            please run npm install --save @react-native-community/netinfo`,
+        );
+    }
 }
 
 let unsubscribe;
