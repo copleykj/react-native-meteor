@@ -90,8 +90,8 @@ module.exports = {
     _delete (obj/* , arguments */) {
         const stack = [obj];
         let leaf = true;
-        for (var i = 1; i < arguments.length - 1; i++) {
-            var key = arguments[i];
+        for (let i = 1; i < arguments.length - 1; i++) {
+            const key = arguments[i];
             if (!(key in obj)) {
                 leaf = false;
                 break;
@@ -101,8 +101,8 @@ module.exports = {
             stack.push(obj);
         }
 
-        for (var i = stack.length - 1; i >= 0; i--) {
-            var key = arguments[i + 1];
+        for (let i = stack.length - 1; i >= 0; i--) {
+            const key = arguments[i + 1];
 
             if (leaf) { leaf = false; } else {
                 for (const other in stack[i][key]) { return; }
@@ -184,11 +184,11 @@ module.exports = {
 
             Data.ddp.on('ready', (message) => {
                 const idsMap = new Map();
-                for (var i in Data.subscriptions) {
+                for (const i in Data.subscriptions) {
                     const sub = Data.subscriptions[i];
                     idsMap.set(sub.subIdRemember, sub.id);
                 }
-                for (var i in message.subs) {
+                for (const i in message.subs) {
                     const subId = idsMap.get(message.subs[i]);
                     if (subId) {
                         const sub = Data.subscriptions[subId];
@@ -219,15 +219,15 @@ module.exports = {
                 Data.db[message.collection] && Data.db[message.collection].del(message.id);
             });
             Data.ddp.on('result', (message) => {
-                const call = Data.calls.find(call => call.id == message.id);
+                const call = Data.calls.find(call => call.id === message.id);
                 if (typeof call.callback === 'function') { call.callback(message.error, message.result); }
-                Data.calls.splice(Data.calls.findIndex(call => call.id == message.id), 1);
+                Data.calls.splice(Data.calls.findIndex(call => call.id === message.id), 1);
             });
 
             Data.ddp.on('nosub', (message) => {
                 for (const i in Data.subscriptions) {
                     const sub = Data.subscriptions[i];
-                    if (sub.subIdRemember == message.id) {
+                    if (sub.subIdRemember === message.id) {
                         console.warn('No subscription existing for', sub.name);
                     }
                 }
