@@ -14,7 +14,10 @@ process.nextTick = setImmediate;
 
 const db = new Minimongo();
 db.debug = false;
-db.batchedUpdates = ReactNative ? ReactNative.unstable_batchedUpdates : undefined;
+
+if (ReactNative) {
+    db.batchedUpdates = ReactNative.unstable_batchedUpdates;
+}
 
 function runAfterOtherComputations (fn) {
     InteractionManager ? InteractionManager.runAfterInteractions(() => {
