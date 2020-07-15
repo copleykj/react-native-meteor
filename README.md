@@ -1,10 +1,10 @@
 # @socialize/react-native-meteor
 
- [![react-native-meteor](https://img.shields.io/npm/dm/@socialize/react-native-meteor.svg)](https://www.npmjs.org/package/@socialize/react-native-meteor) [![npm version](https://badge.fury.io/js/%40socialize%2Freact-native-meteor.svg)](https://badge.fury.io/js/%40socialize%2Freact-native-meteor) [![Dependency Status](https://david-dm.org/copleykj/react-native-meteor/status.svg)](https://david-dm.org/copleykj/react-native-meteor) [![Gitter Chat](https://img.shields.io/gitter/room/SocializeJs/Lobby.svg)](https://gitter.im/SocializeJs/Lobby)
+ [![react-native-meteor](https://img.shields.io/npm/dm/@socialize/react-native-meteor.svg)](https://www.npmjs.org/package/@socialize/react-native-meteor) [![npm version](https://badge.fury.io/js/%40socialize%2Freact-native-meteor.svg)](https://badge.fury.io/js/%40socialize%2Freact-native-meteor) [![Dependency Status](https://david-dm.org/copleykj/react-native-meteor/status.svg)](https://david-dm.org/copleykj/react-native-meteor)
 
- This project was adapted from [react-native-meteor](https://github.com/inProgress-team/react-native-meteor) by inProgress Team to be more up to date and focused. This documentation has been revised to be more coherent, dependencies have been updated, and the API has been brought more in-line with Meteor.
+ This project was adapted from [react-native-meteor](https://github.com/inProgress-team/react-native-meteor) by inProgress Team to be more up to date and focused. This documentation has been revised to be more coherent, dependencies have been updated, and the API has been brought closely in-line with Meteor.
 
- If you are moving from that package to this one, you may find certain parts are missing that were deemed to be outside the scope of this package (ListViews), were removed/deprecated in meteor core or are outdated methods of connecting Tracker with your componenets (connectMeteor, composeWithTracker and createContainer).
+ If you are moving from that package to this one, you may find certain parts are missing which were deemed to be outside the scope of this package (ListViews), they were removed/deprecated in meteor core, or they are outdated methods of connecting Tracker with your componenets (connectMeteor, composeWithTracker and createContainer).
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
@@ -12,14 +12,17 @@
 - [Installation And Setup](#installation-and-setup)
   - [Android](#android)
 - [Example Usage](#example-usage)
-- [Reactive Variables](#reactive-variables)
+  - [withTracker](#withtracker)
+  - [useTracker](#usetracker)
+- [Reactive Data Sources](#reactive-data-sources)
 - [API](#api)
   - [Subscriptions](#subscriptions)
   - [Collections](#collections)
   - [Meteor.is/Environment/](#meteorisenvironment)
 - [DDP connection](#ddp-connection)
   - [Meteor.connect(url, options)](#meteorconnecturl-options)
-    - [Meteor.ddp](#meteorddp)
+    - [Arguments](#arguments)
+  - [Meteor.ddp](#meteorddp)
   - [Meteor.disconnect()](#meteordisconnect)
 - [Meteor Methods](#meteor-methods)
 - [Additional Packages](#additional-packages)
@@ -32,12 +35,12 @@
 
 ## Supporting The Project
 
-In the spirit of keeping this and all of the packages in the [Socialize](https://atmospherejs.com/socialize) set alive and well maintained, I ask that if you find this package useful, please either sponsor my work through GitHub, or donate via Paypal or Patreon. Info can be found in the "Sponsor this project" section of the [GitHub Repo](https://github.com/copleykj/react-native-meteor)
+Finding the time to maintain FOSS projects can be quite difficult. I am myself responsible for over 30 personal projects across 2 platforms, as well as Multiple others maintained by the [Meteor Community Packages](https://github.com/meteor-community-packages) organization. Therfore, if you appreciate my work, I ask that you either sponsor my work through GitHub, or donate via Paypal or Patreon. Every dollar helps give cause for spending my free time fielding issues, feature requests, pull requests and releasing updates. Info can be found in the "Sponsor this project" section of the [GitHub Repo](https://github.com/copleykj/react-native-meteor)
 
 ## Installation And Setup
 
 ```sh
-npm i --save @socialize/react-native-meteor
+npm i --save @socialize/react-native-meteor @react-native-community/netinfo @react-native-community/async-storage
 ```
 
 ### Android
@@ -56,6 +59,8 @@ adb reverse tcp:3000 tcp:3000
 
 ## Example Usage
 
+### withTracker
+
 ```javascript
 
 import React, { Component } from 'react';
@@ -63,7 +68,7 @@ import { View, Text } from 'react-native';
 import Meteor, { withTracker } from 'react-native-meteor';
 import TodosCollection from '../api/todo';
 
-Meteor.connect('ws://192.168.X.X:3000/websocket');//do this only once
+Meteor.connect('ws://192.168.X.X:3000/websocket'); //do this only once
 
 class App extends Component {
   renderRow(todo) {
@@ -90,21 +95,53 @@ export default withTracker(params=>{
 })(App);
 ```
 
+### useTracker
+
+```javascript
+
+import React, { Component } from 'react';
+import { View, Text } from 'react-native';
+import Meteor, { withTracker } from 'react-native-meteor';
+import TodosCollection from '../api/todo';
+
+Meteor.connect('ws://192.168.X.X:3000/websocket'); //do this only once
+
+const renderRow = (todo) => {
+  return (
+    <Text>{todo.title}</Text>
+  );
+}
+export default () => {
+  const { todos, todosReady } = useTracker(() => {
+    return {
+      todosReady: Meteor.subscribe('todos').ready(),
+      todos: TodosCollection.find({done: false}, { sort: { createdAt: -1 }}),
+    };
+  });
+
+  return(
+    <View>
+        {todosReady ? todos.map(renderRow) : <View>Loading...</View>}
+    </View>
+  )
+}
+```
+
 ---
 
-## Reactive Variables
+## Reactive Data Sources
 
-These variables can be used inside `withTracker`. They will be populated into your component if they change.
+These reactive sources can be used inside `withTracker` and `useTracker`. They will be populated into your component if they change.
 
-- [Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe)
-- Mongo.Collection(collectionName, options)
-  - [.find(selector, options)](http://docs.meteor.com/#/full/find)
-  - [.fndOne(selector, options)](http://docs.meteor.com/#/full/findone)
-- [Meteor.user()](http://docs.meteor.com/#/full/meteor_user)
-- [Meteor.userId()](http://docs.meteor.com/#/full/meteor_userid)
-- [Meteor.loggingIn()](http://docs.meteor.com/#/full/meteor_loggingin)
-- [Meteor.status()](http://docs.meteor.com/#/full/meteor_status)
-- [ReactiveDict()](https://atmospherejs.com/meteor/reactive-dict)
+- [Meteor.subscribe()](https://docs.meteor.com/api/pubsub.html#Meteor-subscribe)
+- [Mongo.Collection(collectionName, options)](https://docs.meteor.com/api/collections.html#Mongo-Collection)
+  - [.find(selector, options)](https://docs.meteor.com/api/collections.html#Mongo-Collection-find)
+  - [.fndOne(selector, options)](https://docs.meteor.com/api/collections.html#Mongo-Collection-findOne)
+- [Meteor.user()](https://docs.meteor.com/api/accounts.html#Meteor-user)
+- [Meteor.userId()](https://docs.meteor.com/api/accounts.html#Meteor-userId)
+- [Meteor.loggingIn()](https://docs.meteor.com/api/accounts.html#Meteor-loggingIn)
+- [Meteor.status()](https://docs.meteor.com/api/connections.html#Meteor-status)
+- [ReactiveDict()](https://docs.meteor.com/api/reactive-dict.html)
 
 ---
 
@@ -112,7 +149,7 @@ These variables can be used inside `withTracker`. They will be populated into yo
 
 ### Subscriptions
 
-- [Meteor.subscribe()](http://docs.meteor.com/#/full/meteor_subscribe)
+- [Meteor.subscribe()](https://docs.meteor.com/api/pubsub.html#Meteor-subscribe)
 
 ```javascript
 import Meteor, { Tracker } from '@socialize/react-native-meteor';
@@ -129,22 +166,35 @@ Tracker.autorun(() =>{
 
 ### Collections
 
+Collections work almost exactly like they do inside your Meteor app. To create a new collection you call `new Mongo.Collection('collectionName', options)`. Currently only the `transform` option will be used. If you are sharing code between apps, other options will be ignored. The only potential issue that may arise here is if you use the `connection` option. Only the default connection is currently supported. If you have use for multiple connections, PR's and FR's are welcome.
+
 - Mongo.Collection(collectionName, options)
-  - [.insert(doc, callback)](http://docs.meteor.com/#/full/insert)
-  - [.update(id, modifier, [options], [callback])](http://docs.meteor.com/#/full/update)
-  - [.remove(id, callback(err, countRemoved))](http://docs.meteor.com/#/full/remove)
+  - [.find(selector, options)](https://docs.meteor.com/api/collections.html#Mongo-Collection-find)
+  - [.fndOne(selector, options)](https://docs.meteor.com/api/collections.html#Mongo-Collection-findOne)
+  - [.insert(doc, callback)](https://docs.meteor.com/api/collections.html#Mongo-Collection-insert)
+  - [.update(id, modifier, [options], [callback])](https://docs.meteor.com/api/collections.html#Mongo-Collection-update)
+  - [.remove(id, callback(err, countRemoved))](https://docs.meteor.com/api/collections.html#Mongo-Collection-remove)
 
 These methods work offline. That means that elements are correctly updated offline, and when you reconnect to ddp, Meteor calls are taken care of.
 
-You need pass the `cursoredFind` option when you get your collection if you want to use cursor-like method:
-
 ```javascript
 import { Mongo } from '@socialize/react-native-meteor';
+import { Widget } from './models/widget';
 
-Mongo.Collection("collectionName", { cursoredFind: true });
+let WidgetsCollection = Mongo.Collection("widgets", {
+  transform: (document) => {
+    //make our documents instances of the Widget class
+    return new Widget(document);
+  }
+});
+
+const aWidget = WidgetsCollection.findOne();
+
+const cursorOfWidgets = WidgetsCollection.find();
+
+const arrayOfWidgets = WidgetsCollection.find().fetch();
 ```
 
-Or you can simply use `find()` to get an array of documents. The option default to false for backward compatibility. Cursor methods are available to share code more easily between a react-native app and a standard Meteor app.
 
 ### Meteor.is/Environment/
 
@@ -215,13 +265,15 @@ import Meteor, { Accounts } from 'react-native-meteor';
 ### React Meteor Data
 
 ```javascript
-import { withTracker } from 'react-native-meteor';
+import { withTracker, useTracker} from 'react-native-meteor';
 ```
 
-See [documentation](https://atmospherejs.com/meteor/react-meteor-data).
+See Meteor's  [react-meteor-data documentation](https://atmospherejs.com/meteor/react-meteor-data) for more info.
 
 ---
 
 ## Contribution
 
-Pull Requests and issues reported are welcome! :)
+Eslint configurations are provided for sanity. After cloning, you can run `npm install --only=dev`. This will install all necessary dependencies to enable linting in your code editor such as vscode.
+
+Pull Requests, Feature Requests, and Bug Reports are welcome!
