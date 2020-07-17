@@ -1,7 +1,7 @@
 import EJSON from 'ejson';
 
 import Data from './Data';
-import MongoID from '../lib/mongo-id';
+import MongoID from './lib/mongo-id';
 
 const stringify = function (value) {
     if (value === undefined) { return 'undefined'; }

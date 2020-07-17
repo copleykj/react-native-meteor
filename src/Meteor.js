@@ -1,8 +1,8 @@
 import Trackr from 'trackr';
 import EJSON from 'ejson';
-import DDP from '../lib/ddp.js';
-import Random from '../lib/Random.js';
-import MeteorError from '../lib/Error.js';
+import DDP from './lib/ddp.js';
+import Random from './lib/Random.js';
+import MeteorError from './lib/Error.js';
 import isReactNative from './isReactNative.js';
 
 import Data from './Data';

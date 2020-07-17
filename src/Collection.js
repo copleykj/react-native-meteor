@@ -3,9 +3,9 @@ import Tracker from 'trackr';
 import EJSON from 'ejson';
 
 import Data from './Data';
-import Random from '../lib/Random';
+import Random from './lib/Random';
 import call from './Call';
-import { isPlainObject } from "../lib/utils.js";
+import { isPlainObject } from "./lib/utils";
 
 class Cursor {
   constructor(collection, docs) {

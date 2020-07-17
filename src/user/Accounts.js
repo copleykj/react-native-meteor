@@ -1,8 +1,8 @@
 import Data from '../Data';
 import call from '../Call';
 import User from './User';
-import Error from '../../lib/Error';
-import { hashPassword } from '../../lib/utils';
+import Error from '../lib/Error';
+import { hashPassword } from '../lib/utils';
 
 module.exports = {
     createUser (options, callback = () => {}) {

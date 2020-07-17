@@ -1,9 +1,9 @@
 import Data from '../Data';
-import { hashPassword } from '../../lib/utils';
+import { hashPassword } from '../lib/utils';
 import call from '../Call';
 import { Collection } from '../Collection';
 import isReactNative from '../isReactNative';
-import MeteorError from '../../lib/Error';
+import MeteorError from '../lib/Error';
 
 let Storage;
 
