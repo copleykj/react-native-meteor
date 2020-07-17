@@ -2,10 +2,15 @@
   "name": "@socialize/react-native-meteor",
   "version": "2.0.0-beta-0",
   "description": "Full Meteor Client for React Native",
-  "main": "src/Meteor.js",
+  "main": "dist/Meteor.js",
+  "module": "dist/Meteor.esm.js",
+  "browser": "dist/Meteor.umd.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require test/setup --recursive",
-    "publish-public": "npm publish --access public",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "prepublish": "npm run build",
+    "publish-release": "npm publish --access public",
     "publish-beta": "npm publish --access public --tag beta"
   },
   "repository": {
@@ -39,21 +44,33 @@
     "@react-native-community/async-storage": "^1.11.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.4.5",
-    "mock-socket": "^2.0.0",
-    "sinon": "^1.17.3",
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
     "babel-eslint": "^10.1.0",
+    "chai": "^3.5.0",
     "eslint": "^7.4.0",
     "eslint-config-standard": "14.1.1",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.20.3"
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-react": "^7.20.3",
+    "mocha": "^2.4.5",
+    "mock-socket": "^2.0.0",
+    "react": "16.13.1",
+    "rollup": "^2.21.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "sinon": "^1.17.3"
   },
   "peerDependencies": {
     "react": "^16.8.0",
     "react-native": ">=0.59.0"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

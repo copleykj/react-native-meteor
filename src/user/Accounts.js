@@ -4,7 +4,7 @@ import User from './User';
 import Error from '../lib/Error';
 import { hashPassword } from '../lib/utils';
 
-module.exports = {
+export default {
     createUser (options, callback = () => {}) {
         // Replace password with the hashed password.
         options.password = hashPassword(options.password);

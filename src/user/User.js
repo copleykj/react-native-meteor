@@ -23,7 +23,7 @@ if (isReactNative) {
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 
-module.exports = {
+export default {
     user () {
         if (!this._userIdSaved) return null;
 
