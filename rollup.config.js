@@ -1,4 +1,3 @@
-import React from 'react';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
@@ -8,6 +7,7 @@ export default [
     // browser-friendly UMD build
     {
         input: 'src/Meteor.js',
+        external: ['react'],
         output: {
             name: 'Meteor',
             file: pkg.browser,
@@ -22,9 +22,6 @@ export default [
             }),
             commonjs({
                 include: 'node_modules/**',
-                namedExports: {
-                    react: Object.keys(React),
-                },
             }),
         ],
     },
@@ -37,7 +34,7 @@ export default [
     // `file` and `format` for each target)
     {
         input: 'src/Meteor.js',
-        external: ['trackr', 'ejson', 'wolfy87-eventemitter', 'minimongo-cache', 'react', 'crypto'],
+        external: ['trackr', 'ejson', 'wolfy87-eventemitter', 'minimongo-cache', 'react', 'crypto-js'],
         output: [
             { file: pkg.main, format: 'cjs' },
             { file: pkg.module, format: 'es' },
