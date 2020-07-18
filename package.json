@@ -5,7 +5,6 @@
   "main": "dist/Meteor.js",
   "module": "dist/Meteor.esm.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register --require test/setup --recursive",
     "build": "rimraf ./dist && rollup -c",
     "dev": "rollup -c -w",
     "prepublish": "npm run build",
@@ -48,7 +47,6 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "babel-eslint": "^10.1.0",
-    "chai": "^3.5.0",
     "eslint": "^7.4.0",
     "eslint-config-standard": "14.1.1",
     "eslint-plugin-import": "^2.22.0",
@@ -56,12 +54,9 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-react": "^7.20.3",
-    "mocha": "^2.4.5",
-    "mock-socket": "^2.0.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.21.0",
-    "rollup-plugin-babel": "^4.4.0",
-    "sinon": "^1.17.3"
+    "rollup-plugin-babel": "^4.4.0"
   },
   "peerDependencies": {
     "react": "^16.8.0",
