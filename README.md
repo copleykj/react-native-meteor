@@ -10,10 +10,12 @@
 
 - [Supporting The Project](#supporting-the-project)
 - [Installation And Setup](#installation-and-setup)
+  - [React Native](#react-native)
   - [Android](#android)
 - [Example Usage](#example-usage)
   - [withTracker](#withtracker)
   - [useTracker](#usetracker)
+- [External Usage](#external-usage)
 - [Reactive Data Sources](#reactive-data-sources)
 - [API](#api)
   - [Subscriptions](#subscriptions)
@@ -29,6 +31,7 @@
   - [ReactiveDict](#reactivedict)
   - [Accounts](#accounts)
   - [React Meteor Data](#react-meteor-data)
+- [Development](#development)
 - [Contribution](#contribution)
 
 <!-- /TOC -->
@@ -40,7 +43,15 @@ Finding the time to maintain FOSS projects can be quite difficult. I am myself r
 ## Installation And Setup
 
 ```sh
-npm i --save @socialize/react-native-meteor @react-native-community/netinfo @react-native-community/async-storage
+npm i --save @socialize/react-native-meteor
+```
+
+### React Native
+
+When using this package with React Native you will need to install the `netinfo` and `async-storage` plugins provided by `@react-native-community`
+
+```sh
+npm i --save @react-native-community/netinfo @react-native-community/async-storage
 ```
 
 ### Android
@@ -126,6 +137,12 @@ export default () => {
   )
 }
 ```
+
+## External Usage
+
+I've put a bit of time into being able to make use of this package outside of React Native. I can't guarantee perfection, but it seems to work well within a CodeSandbox project. Feel free to fork the following sandbox and give it a go.
+
+[![Edit @socialize/react-native-meteor Test Sandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/socializereact-native-meteor-test-sandbox-by9ly?fontsize=14&hidenavigation=1&theme=dark)
 
 ---
 
@@ -271,6 +288,14 @@ import { withTracker, useTracker} from 'react-native-meteor';
 See Meteor's  [react-meteor-data documentation](https://atmospherejs.com/meteor/react-meteor-data) for more info.
 
 ---
+
+## Development
+
+This package uses Rollup.js as it's bundler. Run `npm install --only=dev` to install dev dependencies and then run `npm run dev` to bundle the package and watch for changes.
+
+For single, unwatched builds use `npm run build`
+
+For developing and testing locally in a React Native project, you can use [wml](https://www.npmjs.com/package/wml) to link this package to your React Native project.
 
 ## Contribution
 
