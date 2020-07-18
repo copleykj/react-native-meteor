@@ -10,7 +10,7 @@ export default [
         external: ['react'],
         output: {
             name: 'Meteor',
-            file: pkg.browser,
+            file: pkg.umd,
             format: 'umd',
         },
         plugins: [

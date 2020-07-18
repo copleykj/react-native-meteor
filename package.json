@@ -4,7 +4,7 @@
   "description": "Full Meteor Client for React Native",
   "main": "dist/Meteor.js",
   "module": "dist/Meteor.esm.js",
-  "browser": "dist/Meteor.umd.js",
+  "umd": "dist/Meteor.umd.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require test/setup --recursive",
     "build": "rimraf ./dist && rollup -c",
