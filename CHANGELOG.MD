@@ -1,5 +1,11 @@
 # Change Log
 
+## V2.0.1
+
+### Bug Fixes
+
+- Rolled back crypto-js version to fix crypo module trying to load outside node environment
+
 ## v2.0.0
 
 ### New Features
