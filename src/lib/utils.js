@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import SHA256 from 'crypto-js/sha256';
 import EJSON from 'ejson';
 
 import MongoID from './mongo-id';
@@ -14,7 +14,7 @@ export function contains (array, element) {
 
 export function hashPassword (password) {
     return {
-        digest: CryptoJS.SHA256(password).toString(),
+        digest: SHA256(password).toString(),
         algorithm: 'sha-256',
     };
 }

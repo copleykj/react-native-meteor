@@ -1,10 +1,9 @@
 {
   "name": "@socialize/react-native-meteor",
-  "version": "2.0.0-beta-4",
+  "version": "2.0.0-beta-13",
   "description": "Full Meteor Client for React Native",
   "main": "dist/Meteor.js",
   "module": "dist/Meteor.esm.js",
-  "umd": "dist/Meteor.umd.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require test/setup --recursive",
     "build": "rimraf ./dist && rollup -c",
@@ -62,8 +61,6 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.21.0",
     "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "sinon": "^1.17.3"
   },
   "peerDependencies": {
