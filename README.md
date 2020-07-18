@@ -16,6 +16,7 @@
   - [withTracker](#withtracker)
   - [useTracker](#usetracker)
 - [External Usage](#external-usage)
+- [Demo](#demo)
 - [Reactive Data Sources](#reactive-data-sources)
 - [API](#api)
   - [Subscriptions](#subscriptions)
@@ -143,6 +144,10 @@ export default () => {
 I've put a bit of time into being able to make use of this package outside of React Native. I can't guarantee perfection, but it seems to work well within a CodeSandbox project. Feel free to fork the following sandbox and give it a go.
 
 [![Edit @socialize/react-native-meteor Test Sandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/socializereact-native-meteor-test-sandbox-by9ly?fontsize=14&hidenavigation=1&theme=dark)
+
+## Demo
+
+A very simple demo, replicating the CodeSandbox project above, is available in the demo folder of the GitHub Repo. Make sure you have Expo installed and then from the `demo` folder run `expo start`.
 
 ---
 
