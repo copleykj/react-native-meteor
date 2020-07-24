@@ -113,7 +113,7 @@ export default withTracker(params=>{
 
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import Meteor, { withTracker } from 'react-native-meteor';
+import Meteor, { useTracker } from 'react-native-meteor';
 import TodosCollection from '../api/todo';
 
 Meteor.connect('ws://192.168.X.X:3000/websocket'); //do this only once
