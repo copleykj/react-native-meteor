@@ -13,7 +13,7 @@ export default [
         external: ['trackr', 'ejson', 'wolfy87-eventemitter', 'minimongo-cache', 'react', 'crypto-js', 'crypto'],
         output: [
             { file: pkg.main, format: 'cjs' },
-            { file: pkg.module, format: 'es' },
+            // { file: pkg.module, format: 'es' },
         ],
         plugins: [
             babel({

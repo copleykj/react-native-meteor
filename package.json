@@ -3,7 +3,6 @@
   "version": "2.0.1",
   "description": "Full Meteor Client for React Native",
   "main": "dist/Meteor.js",
-  "module": "dist/Meteor.esm.js",
   "scripts": {
     "build": "rimraf ./dist && rollup -c",
     "dev": "rollup -c -w",
