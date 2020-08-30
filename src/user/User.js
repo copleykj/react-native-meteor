@@ -2,24 +2,7 @@ import Data from '../Data';
 import { hashPassword } from '../lib/utils';
 import call from '../Call';
 import { Collection } from '../Collection';
-import isReactNative from '../isReactNative';
-import MeteorError from '../lib/Error';
-
-let Storage;
-
-if (isReactNative) {
-    try {
-        Storage = require('@react-native-community/async-storage').default;
-    } catch (e) {
-        throw new MeteorError(
-            'RequiresAsyncStorage',
-            `@socialize/react-native-meteor requires on @react-native-community/async-storage.
-            please run npm install --save @react-native-community/async-storage`,
-        );
-    }
-} else {
-    Storage = localStorage;
-}
+import config from '../config';
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 
@@ -49,6 +32,7 @@ export default {
         });
     },
     handleLogout () {
+        const Storage = config.AsyncStorage;
         Storage.removeItem(TOKEN_KEY);
         Data._tokenIdSaved = null;
         this._userIdSaved = null;
@@ -101,6 +85,7 @@ export default {
     },
     _handleLoginCallback (err, result) {
         if (!err) { // save user id and token
+            const Storage = config.AsyncStorage;
             Storage.setItem(TOKEN_KEY, result.token);
             Data._tokenIdSaved = result.token;
             this._userIdSaved = result.id;
@@ -127,6 +112,7 @@ export default {
         return Data._tokenIdSaved;
     },
     getAuthTokenFromStorage () {
+        const Storage = config.AsyncStorage;
         return Storage.getItem(TOKEN_KEY);
     },
     async _loadInitialUser () {

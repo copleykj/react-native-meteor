@@ -1,5 +1,17 @@
 # Change Log
 
+## 3.0.0
+
+This is a marjor release due to changes that were necessary to fix use of the package outside of React Native.
+
+### New Features
+
+- Added `configureOptionalDeps` as alternative to conditional imports, so that parts that React Native requires can be added as necessary.
+
+### Bug Fixes & Breaking Changes
+
+- removed use of conditional imports to deal with bundlers such as webpack.
+
 ## V2.0.1
 
 ### Bug Fixes

@@ -3,7 +3,7 @@ import EJSON from 'ejson';
 import DDP from './lib/ddp.js';
 import Random from './lib/Random.js';
 import MeteorError from './lib/Error.js';
-import isReactNative from './isReactNative.js';
+import config, { configureOptionalDeps, isReactNative } from './config';
 
 import Data from './Data';
 import { Collection } from './Collection';
@@ -17,22 +17,10 @@ import ReactiveDict from './ReactiveDict';
 import User from './user/User';
 import Accounts from './user/Accounts';
 
-let NetInfo;
-if (isReactNative) {
-    try {
-        NetInfo = require('@react-native-community/netinfo');
-    } catch (e) {
-        throw new MeteorError(
-            'RequiresNetInfo',
-            `@socialize/react-native-meteor requires on @react-native-community/netinfo.
-            please run npm install --save @react-native-community/netinfo`,
-        );
-    }
-}
-
 let unsubscribe;
 
 module.exports = {
+    configureOptionalDeps,
     Accounts,
     Random,
     Tracker: Trackr,
@@ -40,7 +28,7 @@ module.exports = {
     Error: MeteorError,
     ReactiveDict,
     isClient: true,
-    isReactNative,
+    get isReactNative () { return isReactNative; },
     Mongo: {
         Collection,
     },
@@ -141,8 +129,8 @@ module.exports = {
                 ...options,
             });
 
-            if (NetInfo) {
-                unsubscribe = NetInfo.addEventListener(({ isConnected }) => {
+            if (config.NetInfo) {
+                unsubscribe = config.NetInfo.addEventListener(({ isConnected }) => {
                     if (isConnected && Data.ddp.autoReconnect) {
                         Data.ddp.connect();
                     }

@@ -1,26 +1,12 @@
-import Minimongo from 'minimongo-cache';
 import Trackr from 'trackr';
-import isReactNative from './isReactNative';
-
-let InteractionManager;
-let ReactNative;
-
-if (isReactNative) {
-    InteractionManager = require('react-native').InteractionManager; // eslint-disable-line
-    ReactNative = require('react-native/Libraries/Renderer/shims/ReactNative'); // eslint-disable-line
-}
+import config, { db } from './config';
 
 process.nextTick = setImmediate;
 
-const db = new Minimongo();
 db.debug = false;
 
-if (ReactNative) {
-    db.batchedUpdates = ReactNative.unstable_batchedUpdates;
-}
-
 function runAfterOtherComputations (fn) {
-    InteractionManager ? InteractionManager.runAfterInteractions(() => {
+    config.InteractionManager ? config.InteractionManager.runAfterInteractions(() => {
         Trackr.afterFlush(() => {
             fn();
         });

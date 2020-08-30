@@ -11,6 +11,7 @@
 - [Supporting The Project](#supporting-the-project)
 - [Installation And Setup](#installation-and-setup)
   - [React Native](#react-native)
+    - [Caveats](#caveats)
   - [Android](#android)
 - [Example Usage](#example-usage)
   - [withTracker](#withtracker)
@@ -49,10 +50,27 @@ npm i --save @socialize/react-native-meteor
 
 ### React Native
 
-When using this package with React Native you will need to install the `netinfo` and `async-storage` plugins provided by `@react-native-community`
+While this package was originally intended soely for React Native, it can now be used in other environments as well. Because of this, when using this package with React Native you will need to install the `netinfo` and `async-storage` plugins provided by `@react-native-community` and then import parts of React Native that help this package optimally use React Native features, and pass them to the `configureOptionalDeps` method provided by this package.
 
 ```sh
 npm i --save @react-native-community/netinfo @react-native-community/async-storage
+```
+
+```js
+import Meteor, { Mongo, useTracker, configureOptionalDeps } from '@socialize/react-native-meteor';
+import NetInfo from '@react-native-community/netinfo';
+import Storage from '@react-native-community/async-storage';
+import { unstable_batchedUpdates as batchedUpdates } from 'react-native/Libraries/Renderer/shims/ReactNative';
+
+configureOptionalDeps({ InteractionManager, batchedUpdates, NetInfo, Storage });
+```
+
+#### Caveats
+
+Calling `configureOptionDeps` will cause `Meteor.isReactNative` to be set to true. To stop this from happening in cases where you aren't using React Native, but want to configure an alternative Storage or NetInfo, pass `isReactNative: false` along with the rest of the options.
+
+```js
+configureOptionalDeps({ Storage: localForage, isReactNative: false });
 ```
 
 ### Android
