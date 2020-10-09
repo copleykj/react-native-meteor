@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.1
+
+### Bug Fixes
+
+- Fixes string based selectors in findOne method of collection.
+
 ## 3.0.0
 
 This is a marjor release due to changes that were necessary to fix use of the package outside of React Native.
