@@ -39,14 +39,18 @@ export class Collection {
     let result;
     let docs;
 
-    if(typeof selector == 'string') {
+    if(typeof selector === 'string') {
+      selector = { _id: selector }
+    }
+
+    if(selector._id) {
       if(options) {
-        docs = this._collection.findOne({_id: selector}, options);
+        docs = this._collection.findOne(selector, options);
       } else {
-        docs = this._collection.get(selector);
+        docs = this._collection.get(selector._id);
       }
       if (docs) {
-        docs = [docs];
+        docs = [this.transform ? this._transform(docs): docs];
       }
     } else {
       docs = this._collection.find(selector, options);
@@ -56,18 +60,10 @@ export class Collection {
   }
 
   findOne(selector, options) {
-    let result;
+    let result = this.find(selector, options);
 
-    if(selector._id && !options) {
-      result = this._collection.get(selector._id);
-      if (result && this._transform) result = this._transform(result);
-    } else {
-      result = this.find(selector, options);
-      if (result) {
-        if (this._cursoredFind) result = result.fetch();
-
-        result = result[0];
-      }
+    if (result) {
+      result = result.fetch()[0];
     }
 
     return result;
