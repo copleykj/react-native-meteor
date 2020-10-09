@@ -1,6 +1,6 @@
 {
   "name": "@socialize/react-native-meteor",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Full Meteor Client for React Native",
   "main": "dist/Meteor.js",
   "scripts": {
