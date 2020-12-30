@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.2
+
+### Bug Fixes
+
+- Fix missing default selector in `Collection.find` method.
+
 ## 3.0.1
 
 ### Bug Fixes

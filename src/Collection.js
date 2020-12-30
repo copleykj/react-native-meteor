@@ -35,7 +35,7 @@ export class Collection {
     this._transform = wrapTransform(options.transform);
   }
 
-  find(selector, options) {
+  find (selector = {}, options) {
     let result;
     let docs;
 
