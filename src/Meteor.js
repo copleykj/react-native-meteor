@@ -19,7 +19,7 @@ import Accounts from './user/Accounts';
 
 let unsubscribe;
 
-module.exports = {
+const Meteor = {
     configureOptionalDeps,
     Accounts,
     Random,
@@ -125,7 +125,7 @@ module.exports = {
 
             this.ddp = Data.ddp = new DDP({
                 endpoint,
-                SocketConstructor: WebSocket,
+                SocketConstructor: typeof WebSocket !== 'undefined' ? WebSocket : undefined,
                 ...options,
             });
 
@@ -343,3 +343,24 @@ module.exports = {
         return handle;
     },
 };
+
+export default Meteor;
+
+// Named exports for the standalone (non-`this`-bound) pieces of the API, so
+// both `import Meteor from ...` and `import { withTracker } from ...` work in
+// ESM and CJS builds alike. User/session methods must be called as
+// `Meteor.user()` etc. and are only available on the default export.
+export {
+    configureOptionalDeps,
+    Accounts,
+    Random,
+    Trackr as Tracker,
+    EJSON,
+    MeteorError as Error,
+    ReactiveDict,
+    withTracker,
+    useTracker,
+    call,
+    Collection,
+};
+export const Mongo = Meteor.Mongo;

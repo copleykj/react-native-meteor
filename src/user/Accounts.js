@@ -28,7 +28,7 @@ export default {
         call('changePassword',
             oldPassword ? hashPassword(oldPassword) : null,
             hashPassword(newPassword),
-            (err, res) => {
+            (err) => {
                 callback(err);
             });
     },

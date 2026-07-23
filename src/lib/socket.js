@@ -54,7 +54,7 @@ export default class Socket extends EventEmitter {
             var object;
             try {
                 object = EJSON.parse(message.data);
-            } catch (ignore) {
+            } catch {
                 // Simply ignore the malformed message and return
                 return;
             }

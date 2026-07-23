@@ -1,5 +1,28 @@
 # Change Log
 
+## 4.0.0-alpha.1
+
+First pre-release of the v4 modernization ([full plan & audit](https://github.com/copleykj/react-native-meteor)). Same runtime code as 3.0.2 on an entirely new toolchain:
+
+### Tooling
+
+- Build: tsup (esbuild) replaces Rollup 2 + Babel; ships dual ESM + CJS with source maps and an `exports` map.
+- Typechecking: TypeScript 7 (native compiler), with TypeScript 5.9 pinned for API-dependent tools until the 7.1 stable API.
+- Lint: ESLint 9 flat config (typescript-eslint, react-hooks) replaces ESLint 7 + babel-eslint; `lint`, `typecheck`, and `test` scripts added.
+- Tests: vitest + a mock DDP v1 server harness (`test/helpers/ddp-server.ts`); first smoke tests cover the public API surface and the DDP connect handshake.
+- CI: GitHub Actions (lint/typecheck/test/build + `publint`/`arethetypeswrong` on Node 18/20/22); tag-triggered publishing with npm provenance.
+
+### Changed
+
+- `crypto-js` bumped to 4.2 (fixes the critical PBKDF2 advisory; we only use SHA-256, which is unchanged).
+- Removed the unused `base-64` dependency; regenerated the lockfile (npm lockfileVersion 3).
+- `react` peer dependency widened from `^16.13.1` to `>=18`.
+- Package no longer commits `dist/`; deprecated `prepublish` replaced with `prepublishOnly`.
+
+### Known/expected
+
+- `minimongo-cache` (and its vulnerable `lodash`) remains until the Phase 3 cache rewrite; `trackr` and `wolfy87-eventemitter` remain until Phases 1–3.
+
 ## 3.0.2
 
 ### Bug Fixes
