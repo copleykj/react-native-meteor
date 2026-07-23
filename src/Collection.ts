@@ -109,14 +109,16 @@ export class Collection<T = Document> {
         }
         // No await before the optimistic write when there's no schema: callers
         // observe the write synchronously, like v3 and like Meteor stubs.
-        if (this.schema) await this.validate(doc);
+        // With a schema, the validated output is written — so schema defaults
+        // and transforms (e.g. auto-filled timestamps) land in the cache.
+        const validated = this.schema ? await this.validate(doc) : doc;
 
-        this.store.upsert(doc);
+        this.store.upsert(validated);
         try {
-            await this.callWhenConnected(`/${this._name}/insert`, [doc]);
-            return doc._id;
+            await this.callWhenConnected(`/${this._name}/insert`, [validated]);
+            return validated._id;
         } catch (error) {
-            this.store.del(doc._id); // roll back the optimistic insert
+            this.store.del(validated._id); // roll back the optimistic insert
             throw error;
         }
     }
@@ -128,8 +130,8 @@ export class Collection<T = Document> {
             throw new MeteorError(409, `Item not found in collection ${this._name} with id ${String(id)}`);
         }
         const snapshot = EJSON.clone(existing);
-        const updated = applyModifier(existing, modifier);
-        if (this.schema) await this.validate(updated);
+        let updated = applyModifier(existing, modifier);
+        if (this.schema) updated = await this.validate(updated);
 
         this.store.upsert(updated);
         try {
@@ -193,8 +195,8 @@ export class Collection<T = Document> {
         });
     }
 
-    private async validate(doc: Document): Promise<void> {
-        if (!this.schema) return;
+    private async validate(doc: Document): Promise<Document> {
+        if (!this.schema) return doc;
         const result = await this.schema['~standard'].validate(doc);
         if (result.issues) {
             throw new MeteorError(
@@ -203,6 +205,9 @@ export class Collection<T = Document> {
                 result.issues.map((issue) => issue.message).join('; '),
             );
         }
+        // The validated output (defaults/transforms applied) becomes the
+        // document of record; _id always survives validation.
+        return { ...(result.value as Record<string, unknown>), _id: doc._id } as Document;
     }
 }
 

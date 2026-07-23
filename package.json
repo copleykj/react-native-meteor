@@ -1,6 +1,6 @@
 {
   "name": "@socialize/react-native-meteor",
-  "version": "4.0.0-alpha.7",
+  "version": "4.0.0-alpha.8",
   "description": "Full Meteor Client for React Native",
   "type": "commonjs",
   "license": "MIT",
@@ -28,7 +28,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./model": {
+      "import": "./dist/model.mjs",
+      "require": "./dist/model.js"
+    }
   },
   "files": [
     "dist"
@@ -70,9 +74,20 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.38.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "react": ">=18",
+    "react-native": ">=0.72",
+    "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": "true"
+    },
+    "react-native": {
+      "optional": "true"
+    }
   }
 }
