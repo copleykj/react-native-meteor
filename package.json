@@ -1,6 +1,6 @@
 {
   "name": "@socialize/react-native-meteor",
-  "version": "4.0.0-alpha.2",
+  "version": "4.0.0-alpha.3",
   "description": "Full Meteor Client for React Native",
   "type": "commonjs",
   "license": "MIT",

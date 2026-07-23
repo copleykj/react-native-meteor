@@ -1,6 +1,6 @@
 import Trackr from 'trackr';
 import EJSON from './lib/ejson';
-import DDP from './lib/ddp.js';
+import DDP from './ddp/connection';
 import Random from './lib/random';
 import MeteorError from './lib/error';
 import config, { configureOptionalDeps, isReactNative } from './config';
@@ -130,10 +130,10 @@ const Meteor = {
             });
 
             if (config.NetInfo) {
+                // Network state is an input to the DDP reconnect state
+                // machine — it decides whether/when to dial.
                 unsubscribe = config.NetInfo.addEventListener(({ isConnected }) => {
-                    if (isConnected && Data.ddp.autoReconnect) {
-                        Data.ddp.connect();
-                    }
+                    Data.ddp.networkOnline(isConnected !== false);
                 });
             }
 
@@ -146,18 +146,10 @@ const Meteor = {
                 });
             });
 
-            let lastDisconnect = null;
             Data.ddp.on('disconnected', () => {
                 Data.notify('change');
-
                 console && console.info('Disconnected from DDP server.');
-                if (!Data.ddp.autoReconnect) { return; }
-
-                if (!lastDisconnect || new Date() - lastDisconnect > 3000) {
-                    Data.ddp.connect();
-                }
-
-                lastDisconnect = new Date();
+                // Reconnection is owned entirely by the DDP state machine.
             });
 
             Data.ddp.on('added', (message) => {

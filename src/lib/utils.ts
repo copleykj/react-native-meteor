@@ -4,13 +4,6 @@ import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import EJSON from './ejson';
 import MongoID from './mongo-id';
 
-// Module-global counter kept for the legacy DDP client only; the Phase 2
-// rewrite scopes message ids per connection.
-let i = 0;
-export function uniqueId(): string {
-    return (i++).toString();
-}
-
 export function contains(array: readonly unknown[], element: unknown): boolean {
     return array.indexOf(element) !== -1;
 }
