@@ -6,5 +6,4 @@ export default defineConfig({
     target: 'es2020',
     clean: true,
     sourcemap: true,
-    external: ['react', 'trackr', 'ejson', 'wolfy87-eventemitter', 'minimongo-cache', 'crypto-js'],
 });

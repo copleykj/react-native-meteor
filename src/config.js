@@ -1,5 +1,5 @@
 import Minimongo from 'minimongo-cache';
-import MeteorError from './lib/Error';
+import MeteorError from './lib/error';
 
 const db = new Minimongo();
 let NetInfo = null;

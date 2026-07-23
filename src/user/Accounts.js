@@ -1,7 +1,7 @@
 import Data from '../Data';
 import call from '../Call';
 import User from './User';
-import Error from '../lib/Error';
+import Error from '../lib/error';
 import { hashPassword } from '../lib/utils';
 
 export default {

@@ -1,4 +1,4 @@
-import EJSON from 'ejson';
+import EJSON from './lib/ejson';
 
 import Data from './Data';
 import MongoID from './lib/mongo-id';

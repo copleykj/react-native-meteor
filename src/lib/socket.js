@@ -1,5 +1,5 @@
-import EventEmitter from 'wolfy87-eventemitter';
-import EJSON from 'ejson';
+import EventEmitter from './emitter';
+import EJSON from './ejson';
 import './mongo-id'; //  Register mongo object ids */
 
 export default class Socket extends EventEmitter {

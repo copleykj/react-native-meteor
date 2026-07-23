@@ -1,9 +1,9 @@
 /* eslint-disable */
 import Tracker from 'trackr';
-import EJSON from 'ejson';
+import EJSON from './lib/ejson';
 
 import Data from './Data';
-import Random from './lib/Random';
+import Random from './lib/random';
 import call from './Call';
 import { isPlainObject } from "./lib/utils";
 

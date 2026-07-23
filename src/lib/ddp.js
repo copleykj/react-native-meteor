@@ -2,7 +2,7 @@
 * DDP.JS 2.1.0
 */
 
-import EventEmitter from 'wolfy87-eventemitter';
+import EventEmitter from './emitter';
 import Queue from './queue';
 import Socket from './socket';
 import { contains, uniqueId } from './utils';
