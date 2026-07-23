@@ -1,5 +1,38 @@
 # Change Log
 
+## 4.0.0-beta.1
+
+Complete TypeScript rewrite aligned with Meteor 3.x. See
+[MIGRATION.md](MIGRATION.md) for the upgrade guide. Highlights over 3.0.2:
+
+- **TypeScript throughout** with published types; dual ESM/CJS build;
+  React >= 18 peer; 250+ tests including DDP protocol transcript tests.
+- **DDP**: single reconnect state machine (Meteor backoff parameters),
+  active heartbeat detecting half-open connections, method re-send on
+  reconnect with `noRetry` opt-out, `updated`/`failed` handling.
+- **Meteor 3 API**: `callAsync`/`applyAsync`; async accounts
+  (`loginWithToken`, `verifyEmail`, `onLogout` added); subscription
+  `readyPromise`; `nosub` errors propagate to `onError`/`onStop`.
+- **Data layer**: in-package typed minimongo-subset cache (documented
+  selector/modifier subset, loud errors) and Tracker port; per-key
+  `ReactiveDict`, new `ReactiveVar`; optimistic writes with snapshot
+  rollback and full modifier support.
+- **Hooks**: `useTracker` on `useSyncExternalStore` (+`skipUpdate`),
+  `useSubscribe`, `useFind` (per-collection granularity), `useUser`,
+  `useUserId`, `useLoggingIn`, `useConnectionStatus`.
+- **`/model` subpath**: typed:model v2 port — Zod 4 validated,
+  type-inferred Models with `denyUntrusted` client fast-fail; core
+  stays Zod-free via the Standard Schema interface.
+- **Dependencies**: crypto-js, minimongo-cache, trackr,
+  wolfy87-eventemitter, base-64 all removed; runtime deps are `ejson` +
+  `@noble/hashes`. Zero npm audit advisories in the runtime tree.
+- **Fixed v3 bugs**: `ObjectID()` throw, `useTracker` listener leak,
+  `ReactiveDict._setObject`, transform bugs, missing update rollback,
+  `createUser` state split-brain and options mutation, stale method
+  callbacks after reconnect, `process.nextTick` monkey-patch,
+  `localStorage` ReferenceError.
+- Login token storage key unchanged — existing users stay logged in.
+
 ## 4.0.0-alpha.1
 
 First pre-release of the v4 modernization ([full plan & audit](https://github.com/copleykj/react-native-meteor)). Same runtime code as 3.0.2 on an entirely new toolchain:
