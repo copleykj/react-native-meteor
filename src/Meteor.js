@@ -7,7 +7,8 @@ import config, { configureOptionalDeps, isReactNative } from './config';
 
 import Data from './Data';
 import { Collection } from './Collection';
-import call from './Call';
+import call, { callAsync, applyAsync } from './Call';
+import ReactiveVar from './ReactiveVar';
 
 import withTracker from './components/withTracker';
 import useTracker from './components/useTracker';
@@ -27,6 +28,7 @@ const Meteor = {
     EJSON,
     Error: MeteorError,
     ReactiveDict,
+    ReactiveVar,
     isClient: true,
     get isReactNative () { return isReactNative; },
     Mongo: {
@@ -39,21 +41,32 @@ const Meteor = {
     },
     ...User,
     status () {
-        return {
-            connected: Data.ddp
-                ? Data.ddp.status === 'connected'
-                : false,
-            status: Data.ddp
-                ? Data.ddp.status
-                : 'disconnected',
-        };
+        return Data.ddp
+            ? Data.ddp.statusInfo()
+            : { connected: false, status: 'disconnected', retryCount: 0, retryTime: null };
     },
     call,
+    callAsync,
+    applyAsync,
+    apply (name, args, callback) {
+        if (typeof callback === 'function') {
+            call(name, ...(args || []), callback);
+        } else {
+            call(name, ...(args || []));
+        }
+    },
     disconnect () {
         if (Data.ddp) {
             Data.ddp.disconnect();
             Data.ddp = null;
         }
+        // Method ids are per-connection; entries for the old session can
+        // never resolve (and could collide with the next session's ids).
+        Data.calls.forEach((call) => {
+            typeof call.callback === 'function' &&
+                call.callback(new MeteorError('connection', 'Connection closed'));
+        });
+        Data.calls.splice(0, Data.calls.length);
         if (unsubscribe) {
             unsubscribe();
             unsubscribe = null;
@@ -175,6 +188,7 @@ const Meteor = {
                         sub.ready = true;
                         sub.readyDeps.changed();
                         sub.readyCallback && sub.readyCallback();
+                        sub.readyResolve && sub.readyResolve();
                     }
                 }
             });
@@ -208,7 +222,22 @@ const Meteor = {
                 for (const i in Data.subscriptions) {
                     const sub = Data.subscriptions[i];
                     if (sub.subIdRemember === message.id) {
-                        console.warn('No subscription existing for', sub.name);
+                        if (message.error) {
+                            const error = new MeteorError(
+                                message.error.error,
+                                message.error.reason,
+                                message.error.details,
+                            );
+                            sub.error = error;
+                            sub.errorCallback && sub.errorCallback(error);
+                            sub.readyReject && sub.readyReject(error);
+                            delete Data.subscriptions[sub.id];
+                            sub.ready && sub.readyDeps.changed();
+                            sub.stopCallback && sub.stopCallback(error);
+                        } else {
+                            // Server confirmed an unsub; nothing to do.
+                            delete Data.subscriptions[sub.id];
+                        }
                     }
                 }
             });
@@ -275,6 +304,14 @@ const Meteor = {
             id = Random.id();
             const subIdRemember = Data.ddp.sub(name, params);
 
+            let readyResolve, readyReject;
+            const readyPromise = new Promise((resolve, reject) => {
+                readyResolve = resolve;
+                readyReject = reject;
+            });
+            // A rejection with no awaiter must not crash the app.
+            readyPromise.catch(() => {});
+
             Data.subscriptions[id] = {
                 id,
                 subIdRemember,
@@ -284,7 +321,11 @@ const Meteor = {
                 ready: false,
                 readyDeps: new Trackr.Dependency(),
                 readyCallback: callbacks.onReady,
+                errorCallback: callbacks.onError,
                 stopCallback: callbacks.onStop,
+                readyPromise,
+                readyResolve,
+                readyReject,
                 stop () {
                     Data.ddp.unsub(this.subIdRemember);
                     delete Data.subscriptions[this.id];
@@ -309,6 +350,12 @@ const Meteor = {
                 record.readyDeps.depend();
                 return record.ready;
             },
+            // Resolves on first ready, rejects if the server denies the
+            // subscription (nosub with error). Not part of Meteor core's
+            // client API — an async/await convenience of this package.
+            readyPromise: Data.subscriptions[id]
+                ? Data.subscriptions[id].readyPromise
+                : Promise.resolve(),
             subscriptionId: id,
         };
 

@@ -43,6 +43,8 @@ interface OutstandingMethod {
     message: { msg: 'method'; id: string; method: string; params: unknown[] };
     /** Sent on the current session and awaiting `result`. */
     sent: boolean;
+    /** Never re-send after a connection drop; fail the call instead. */
+    noRetry: boolean;
 }
 
 /**
@@ -158,10 +160,14 @@ export default class DDP extends EventEmitter {
         }
     }
 
-    method(name: string, params: unknown[]): string {
+    method(name: string, params: unknown[], options?: { noRetry?: boolean }): string {
         const id = this.uniqueId();
         const message = { msg: 'method' as const, id, method: name, params };
-        this.methodOutbox.set(id, { message, sent: this.status === 'connected' });
+        this.methodOutbox.set(id, {
+            message,
+            sent: this.status === 'connected',
+            noRetry: options?.noRetry === true,
+        });
         this.sendOrQueue(message);
         return id;
     }
@@ -219,9 +225,20 @@ export default class DDP extends EventEmitter {
         this.socket = null;
         this.stopHeartbeat();
         this.setStatus('disconnected');
-        // Methods that were sent but unacked will be re-sent on reconnect.
-        for (const outstanding of this.methodOutbox.values()) {
-            outstanding.sent = false;
+        // Methods that were sent but unacked will be re-sent on reconnect —
+        // except noRetry methods, which fail now with a synthetic result so
+        // callers can decide whether repeating them is safe.
+        for (const [id, outstanding] of [...this.methodOutbox]) {
+            if (outstanding.noRetry && outstanding.sent) {
+                this.methodOutbox.delete(id);
+                this.emit('result', {
+                    msg: 'result',
+                    id,
+                    error: { error: 'connection-lost', reason: 'Connection lost before method result was received', isClientSafe: true },
+                });
+            } else {
+                outstanding.sent = false;
+            }
         }
         this.emit('disconnected');
         if (this.autoReconnect) {
