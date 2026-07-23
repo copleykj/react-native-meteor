@@ -10,7 +10,11 @@ permissions:
   id-token: write # OIDC for npm provenance
 
 jobs:
+  e2e:
+    uses: ./.github/workflows/e2e.yml
+
   publish:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
