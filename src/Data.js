@@ -14,6 +14,8 @@ function runAfterOtherComputations (fn) {
 export default {
     _endpoint: null,
     _options: null,
+    /** @type {string | null} current login resume token */
+    _tokenIdSaved: null,
     ddp: null,
     subscriptions: {},
     db,
