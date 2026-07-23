@@ -29,6 +29,8 @@ export class Cursor<T> {
     constructor(
         private readonly transform: WrappedTransform<T> | null,
         private readonly docs: Document[],
+        /** Which store produced this cursor — lets useFind subscribe per-collection. */
+        readonly collectionStore?: LocalCollection,
     ) {}
 
     count(): number {
@@ -84,7 +86,7 @@ export class Collection<T = Document> {
         } else {
             docs = this.store.find(selector, options);
         }
-        return new Cursor(this._transform, docs);
+        return new Cursor(this._transform, docs, this.store);
     }
 
     findOne(selector: Selector | string = {}, options?: FindOptions): T | undefined {

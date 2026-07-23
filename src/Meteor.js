@@ -12,6 +12,15 @@ import ReactiveVar from './ReactiveVar';
 
 import withTracker from './components/withTracker';
 import useTracker from './components/useTracker';
+import {
+    bindHooksHost,
+    useSubscribe,
+    useFind,
+    useUser,
+    useUserId,
+    useLoggingIn,
+    useConnectionStatus,
+} from './components/hooks';
 
 import ReactiveDict from './ReactiveDict';
 
@@ -36,6 +45,12 @@ const Meteor = {
     },
     withTracker,
     useTracker,
+    useSubscribe,
+    useFind,
+    useUser,
+    useUserId,
+    useLoggingIn,
+    useConnectionStatus,
     getData () {
         return Data;
     },
@@ -383,6 +398,8 @@ const Meteor = {
     },
 };
 
+bindHooksHost(Meteor);
+
 export default Meteor;
 
 // Named exports for the standalone (non-`this`-bound) pieces of the API, so
@@ -399,7 +416,16 @@ export {
     ReactiveDict,
     withTracker,
     useTracker,
+    useSubscribe,
+    useFind,
+    useUser,
+    useUserId,
+    useLoggingIn,
+    useConnectionStatus,
     call,
+    callAsync,
+    applyAsync,
+    ReactiveVar,
     Collection,
 };
 export const Mongo = Meteor.Mongo;

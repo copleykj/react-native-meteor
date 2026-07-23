@@ -38,15 +38,15 @@ export default {
     _cbs: [],
     onChange (cb) {
         this.db.on('change', cb);
-        this.ddp.on('connected', cb);
-        this.ddp.on('disconnected', cb);
+        this.ddp && this.ddp.on('connected', cb);
+        this.ddp && this.ddp.on('disconnected', cb);
         this.on('loggingIn', cb);
         this.on('change', cb);
     },
     offChange (cb) {
         this.db.off('change', cb);
-        this.ddp.off('connected', cb);
-        this.ddp.off('disconnected', cb);
+        this.ddp && this.ddp.off('connected', cb);
+        this.ddp && this.ddp.off('disconnected', cb);
         this.off('loggingIn', cb);
         this.off('change', cb);
     },
