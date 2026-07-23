@@ -1,4 +1,4 @@
-import Trackr from 'trackr';
+import Trackr from './tracker';
 import EJSON from './lib/ejson';
 import DDP from './ddp/connection';
 import Random from './lib/random';

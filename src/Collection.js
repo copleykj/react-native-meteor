@@ -1,5 +1,5 @@
 /* eslint-disable */
-import Tracker from 'trackr';
+import Tracker from './tracker';
 import EJSON from './lib/ejson';
 
 import Data from './Data';

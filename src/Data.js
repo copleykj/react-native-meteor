@@ -1,9 +1,5 @@
-import Trackr from 'trackr';
+import Trackr from './tracker';
 import config, { db } from './config';
-
-process.nextTick = setImmediate;
-
-db.debug = false;
 
 function runAfterOtherComputations (fn) {
     config.InteractionManager ? config.InteractionManager.runAfterInteractions(() => {

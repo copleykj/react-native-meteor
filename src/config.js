@@ -1,14 +1,18 @@
-import Minimongo from 'minimongo-cache';
+import { Cache } from './cache/store';
 import MeteorError from './lib/error';
 
-const db = new Minimongo();
+const db = new Cache();
 let NetInfo = null;
 let isReactNative = false;
 let Storage = null;
 let InteractionManager = null;
 
-const configureOptionalDeps = (options = { NetInfo: null, isReactNative: true, Storage: localStorage, InteractionManager: null, batchedUpdates: null }) => {
-    ({ NetInfo, isReactNative, Storage, InteractionManager } = options);
+// The localStorage default only applies where a global localStorage exists
+// (web); in React Native the app injects its storage explicitly.
+const defaultStorage = () => (typeof localStorage !== 'undefined' ? localStorage : null);
+
+const configureOptionalDeps = (options = {}) => {
+    ({ NetInfo = null, isReactNative = true, Storage = defaultStorage(), InteractionManager = null } = options);
 
     if (options.batchedUpdates) {
         db.batchedUpdates = options.batchedUpdates;
