@@ -22,7 +22,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
+      # Trusted publishing (OIDC): no tokens anywhere. Requires npm >= 11.5.1
+      # and this repo+workflow registered as a Trusted Publisher in the
+      # package's settings on npmjs.com. Provenance is generated automatically.
+      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
@@ -31,9 +34,7 @@ jobs:
       - name: Publish (pre-releases go to the "next" dist-tag)
         run: |
           if [[ "${GITHUB_REF_NAME}" == *"-"* ]]; then
-            npm publish --access public --provenance --tag next
+            npm publish --access public --tag next
           else
-            npm publish --access public --provenance
+            npm publish --access public
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
