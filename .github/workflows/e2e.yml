@@ -1,0 +1,53 @@
+name: E2E (real Meteor server)
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # weekly canary against current Meteor — upstream-drift detection
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build and pack the library
+        run: |
+          npm ci
+          npm run build
+          npm pack --pack-destination /tmp
+      - name: Install Meteor
+        run: npm install -g meteor
+        env:
+          METEOR_ALLOW_SUPERUSER: 'true'
+      - name: Scaffold fixture app on current Meteor
+        env:
+          METEOR_ALLOW_SUPERUSER: 'true'
+        run: |
+          meteor create /tmp/fixture-app --minimal
+          cd /tmp/fixture-app
+          meteor add accounts-password
+          meteor npm install --save bcrypt
+          cp "$GITHUB_WORKSPACE/e2e/fixture-server.js" server/main.js
+      - name: Start fixture server
+        env:
+          METEOR_ALLOW_SUPERUSER: 'true'
+        run: |
+          cd /tmp/fixture-app
+          nohup meteor run --port 3100 > /tmp/meteor.log 2>&1 &
+          # First boot compiles the app and starts dev mongo; be patient.
+          timeout 600 bash -c 'until grep -q "e2e fixture ready" /tmp/meteor.log; do sleep 5; done'
+      - name: Run e2e client checks
+        run: |
+          cd e2e
+          npm init -y > /dev/null
+          npm install /tmp/socialize-react-native-meteor-*.tgz ws zod
+          METEOR_URL=ws://localhost:3100/websocket node run.mjs
+      - name: Server log on failure
+        if: failure()
+        run: tail -100 /tmp/meteor.log
