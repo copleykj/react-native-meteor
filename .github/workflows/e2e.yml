@@ -22,7 +22,11 @@ jobs:
           npm run build
           npm pack --pack-destination /tmp
       - name: Install Meteor
-        run: npm install -g meteor
+        run: |
+          npm install -g meteor --foreground-scripts
+          # The launcher installs to ~/.meteor, which later steps need on PATH.
+          echo "$HOME/.meteor" >> "$GITHUB_PATH"
+          "$HOME/.meteor/meteor" --version || meteor --version
         env:
           METEOR_ALLOW_SUPERUSER: 'true'
       - name: Scaffold fixture app on current Meteor
