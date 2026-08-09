@@ -30,7 +30,7 @@
   "homepage": "https://github.com/copleykj/react-native-meteor#readme",
   "dependencies": {
     "base-64": "^0.1.0",
-    "crypto-js": "^3.3.0",
+    "crypto-js": "^4.2.0",
     "ejson": "^2.2.0",
     "minimongo-cache": "0.0.49",
     "trackr": "^2.0.2",
